@@ -114,6 +114,11 @@ KBUILD_CFLAGS += -fno-asynchronous-unwind-tables
 # prevent gcc from generating any FP code by mistake
 KBUILD_CFLAGS += $(call cc-option,-mno-sse -mno-mmx -mno-sse2 -mno-3dnow,)
 
+# Goldfish virtual platform support
+mflags-$(CONFIG_X86_GOLDFISH):= -Iarch/x86/include/asm/mach-goldfish
+fcore-$(CONFIG_X86_GOLDFISH)	+= arch/x86/mach-goldfish/
+mcore-$(CONFIG_X86_GOLDFISH)	:= arch/x86/mach-default/
+
 KBUILD_CFLAGS += $(mflags-y)
 KBUILD_AFLAGS += $(mflags-y)
 
