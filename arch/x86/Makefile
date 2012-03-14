@@ -117,7 +117,7 @@ KBUILD_CFLAGS += $(call cc-option,-mno-sse -mno-mmx -mno-sse2 -mno-3dnow,)
 # Goldfish virtual platform support
 mflags-$(CONFIG_X86_GOLDFISH):= -Iarch/x86/include/asm/mach-goldfish
 fcore-$(CONFIG_X86_GOLDFISH)	+= arch/x86/mach-goldfish/
-mcore-$(CONFIG_X86_GOLDFISH)	:= arch/x86/mach-default/
+# mcore-$(CONFIG_X86_GOLDFISH)	:= arch/x86/mach-default/
 
 KBUILD_CFLAGS += $(mflags-y)
 KBUILD_AFLAGS += $(mflags-y)
@@ -133,6 +133,7 @@ head-y += arch/x86/kernel/init_task.o
 libs-y  += arch/x86/lib/
 
 # See arch/x86/Kbuild for content of core part of the kernel
+core-y += $(fcore-y)
 core-y += arch/x86/
 
 # drivers-y are linked after core-y
