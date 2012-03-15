@@ -24,6 +24,7 @@
 #include <linux/delay.h>
 #include <linux/clk.h>
 #include <linux/wait.h>
+#include <linux/slab.h>
 #include "qemu_trace.h"
 
 MODULE_DESCRIPTION("Qemu Trace Driver");

@@ -23,6 +23,7 @@
 #include <linux/types.h>
 #include <linux/pci.h>
 #include <linux/interrupt.h>
+#include <linux/slab.h>
 #include <asm/io.h>
 
 
