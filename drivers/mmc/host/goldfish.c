@@ -389,7 +389,7 @@ goldfish_mmc_prepare_data(struct goldfish_mmc_host *host, struct mmc_request *re
 #ifdef CONFIG_ARM
 	host->sg_len = dma_map_sg(mmc_dev(host->mmc), data->sg,
 				sg_len, dma_data_dir);
-#elif	CONFIG_X86
+#elif	defined(CONFIG_X86)
     /*
      * Use NULL for dev for ISA-like devices
      */
@@ -474,7 +474,7 @@ static int goldfish_mmc_probe(struct platform_device *pdev)
 	host->reg_base = (void __iomem *)IO_ADDRESS(res->start - IO_START);
 	host->virt_base = dma_alloc_writecombine(&pdev->dev, BUFFER_SIZE,
 						 &buf_addr, GFP_KERNEL);
-#elif	CONFIG_X86
+#elif	defined(CONFIG_X86)
     /*
      * Use NULL for dev for ISA-like devices
      */
@@ -531,7 +531,7 @@ static int goldfish_mmc_probe(struct platform_device *pdev)
 err_request_irq_failed:
 #ifdef	CONFIG_ARM
 	dma_free_writecombine(&pdev->dev, BUFFER_SIZE, host->virt_base, host->phys_base);
-#elif	CONFIG_X86
+#elif	defined(CONFIG_X86)
 	dma_free_coherent(NULL, BUFFER_SIZE, host->virt_base, host->phys_base);
 #else
 #error NOT SUPPORTED
@@ -554,7 +554,7 @@ static int goldfish_mmc_remove(struct platform_device *pdev)
 	free_irq(host->irq, host);
 #ifdef	CONFIG_ARM
 	dma_free_writecombine(&pdev->dev, BUFFER_SIZE, host->virt_base, host->phys_base);
-#elif	CONFIG_X86
+#elif	defined(CONFIG_X86)
 	dma_free_coherent(NULL, BUFFER_SIZE, host->virt_base, host->phys_base);
 #else
 #error NOT SUPPORTED
