@@ -17,6 +17,7 @@
 #include <linux/miscdevice.h>
 #include <linux/fs.h>
 #include <linux/platform_device.h>
+#include <linux/sched.h>
 
 #include <linux/types.h>
 #include <linux/pci.h>
@@ -287,7 +288,7 @@ static int goldfish_audio_probe(struct platform_device *pdev)
 	}
 #ifdef CONFIG_ARM
 	data->reg_base = (char __iomem *)IO_ADDRESS(r->start - IO_START);
-#elif CONFIG_X86
+#elif defined(CONFIG_X86)
 	data->reg_base = ioremap(r->start, PAGE_SIZE);
 #endif
 	data->irq = platform_get_irq(pdev, 0);
@@ -299,7 +300,7 @@ static int goldfish_audio_probe(struct platform_device *pdev)
 #ifdef CONFIG_ARM
 	data->buffer_virt = dma_alloc_writecombine(&pdev->dev, COMBINED_BUFFER_SIZE,
 							&buf_addr, GFP_KERNEL);
-#elif   CONFIG_X86
+#elif   defined(CONFIG_X86)
 	data->buffer_virt = dma_alloc_coherent(NULL, COMBINED_BUFFER_SIZE,
 							&buf_addr, GFP_KERNEL);
 #endif
@@ -340,7 +341,7 @@ err_misc_register_failed:
 err_request_irq_failed:
 #ifdef  CONFIG_ARM
 	dma_free_writecombine(&pdev->dev, COMBINED_BUFFER_SIZE, data->buffer_virt, data->buffer_phys);
-#elif   CONFIG_X86
+#elif   defined(CONFIG_X86)
 	dma_free_coherent(NULL, COMBINED_BUFFER_SIZE, data->buffer_virt, data->buffer_phys);
 #endif
 err_alloc_write_buffer_failed:
@@ -362,7 +363,7 @@ static int goldfish_audio_remove(struct platform_device *pdev)
 	free_irq(data->irq, data);
 #ifdef  CONFIG_ARM
 	dma_free_writecombine(&pdev->dev, COMBINED_BUFFER_SIZE, data->buffer_virt, data->buffer_phys);
-#elif   CONFIG_X86
+#elif   defined(CONFIG_X86)
 	dma_free_coherent(NULL, COMBINED_BUFFER_SIZE, data->buffer_virt, data->buffer_phys);
 	iounmap(data->reg_base);
 #endif
