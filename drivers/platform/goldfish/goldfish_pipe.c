@@ -90,12 +90,6 @@
 #define CMD_WRITE_BUFFER	4  /* send a user buffer to the emulator */
 #define CMD_WAKE_ON_WRITE	5  /* tell the emulator to wake us when writing
 				     is possible */
-
-/* The following commands are related to read operations, they must be
- * listed in the same order than the corresponding write ones, since we
- * will use (CMD_READ_BUFFER - CMD_WRITE_BUFFER) as a special offset
- * in goldfish_pipe_read_write() below.
- */
 #define CMD_READ_BUFFER        6  /* receive a user buffer from the emulator */
 #define CMD_WAKE_ON_READ       7  /* tell the emulator to wake us when reading
 				   * is possible */
@@ -272,8 +266,6 @@ static ssize_t goldfish_pipe_read_write(struct file *filp, char __user *buffer,
 	unsigned long irq_flags;
 	struct goldfish_pipe *pipe = filp->private_data;
 	struct goldfish_pipe_dev *dev = pipe->dev;
-	const int cmd_offset = is_write ? 0
-					: (CMD_READ_BUFFER - CMD_WRITE_BUFFER);
 	unsigned long address, address_end;
 	int ret = 0;
 
@@ -325,16 +317,18 @@ static ssize_t goldfish_pipe_read_write(struct file *filp, char __user *buffer,
 
 		/* Now, try to transfer the bytes in the current page */
 		spin_lock_irqsave(&dev->lock, irq_flags);
-		if (access_with_param(dev, CMD_WRITE_BUFFER + cmd_offset,
-				address, avail, pipe, &status)) {
+
+		if (access_with_param(dev,
+								is_write ? CMD_WRITE_BUFFER : CMD_READ_BUFFER,
+								address, avail, pipe, &status)) {
 			gf_write64((u64)(unsigned long)pipe,
 				   dev->base + PIPE_REG_CHANNEL,
 				   dev->base + PIPE_REG_CHANNEL_HIGH);
 			writel(avail, dev->base + PIPE_REG_SIZE);
 			gf_write64(address, dev->base + PIPE_REG_ADDRESS,
 				dev->base + PIPE_REG_ADDRESS_HIGH);
-			writel(CMD_WRITE_BUFFER + cmd_offset,
-					dev->base + PIPE_REG_COMMAND);
+			writel(is_write ? CMD_WRITE_BUFFER : CMD_READ_BUFFER,
+				dev->base + PIPE_REG_COMMAND);
 			status = readl(dev->base + PIPE_REG_STATUS);
 		}
 		spin_unlock_irqrestore(&dev->lock, irq_flags);
@@ -370,7 +364,8 @@ static ssize_t goldfish_pipe_read_write(struct file *filp, char __user *buffer,
 		set_bit(wakeBit, &pipe->flags);
 
 		/* Tell the emulator we're going to wait for a wake event */
-		goldfish_cmd(pipe, CMD_WAKE_ON_WRITE + cmd_offset);
+		goldfish_cmd(pipe,
+		             is_write ? CMD_WAKE_ON_WRITE : CMD_WAKE_ON_READ);
 
 		/* Unlock the pipe, then wait for the wake signal */
 		mutex_unlock(&pipe->lock);
