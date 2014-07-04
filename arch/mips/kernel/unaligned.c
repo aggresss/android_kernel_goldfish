@@ -422,6 +422,331 @@ extern void show_registers(struct pt_regs *regs);
 		: "r" (value), "r" (addr), "i" (-EFAULT));
 #endif
 
+#ifdef CONFIG_64BIT
+static inline void dmtc1(unsigned long val, unsigned reg)
+{
+	switch (reg) {
+	case 0: __asm__ __volatile__ (".set push\n.set hardfloat\ndmtc1\t%0,$0\n.set pop"::"r"(val)); break;
+	case 1: __asm__ __volatile__ (".set push\n.set hardfloat\ndmtc1\t%0,$1\n.set pop"::"r"(val)); break;
+	case 2: __asm__ __volatile__ (".set push\n.set hardfloat\ndmtc1\t%0,$2\n.set pop"::"r"(val)); break;
+	case 3: __asm__ __volatile__ (".set push\n.set hardfloat\ndmtc1\t%0,$3\n.set pop"::"r"(val)); break;
+	case 4: __asm__ __volatile__ (".set push\n.set hardfloat\ndmtc1\t%0,$4\n.set pop"::"r"(val)); break;
+	case 5: __asm__ __volatile__ (".set push\n.set hardfloat\ndmtc1\t%0,$5\n.set pop"::"r"(val)); break;
+	case 6: __asm__ __volatile__ (".set push\n.set hardfloat\ndmtc1\t%0,$6\n.set pop"::"r"(val)); break;
+	case 7: __asm__ __volatile__ (".set push\n.set hardfloat\ndmtc1\t%0,$7\n.set pop"::"r"(val)); break;
+	case 8: __asm__ __volatile__ (".set push\n.set hardfloat\ndmtc1\t%0,$8\n.set pop"::"r"(val)); break;
+	case 9: __asm__ __volatile__ (".set push\n.set hardfloat\ndmtc1\t%0,$9\n.set pop"::"r"(val)); break;
+	case 10: __asm__ __volatile__ (".set push\n.set hardfloat\ndmtc1\t%0,$10\n.set pop"::"r"(val)); break;
+	case 11: __asm__ __volatile__ (".set push\n.set hardfloat\ndmtc1\t%0,$11\n.set pop"::"r"(val)); break;
+	case 12: __asm__ __volatile__ (".set push\n.set hardfloat\ndmtc1\t%0,$12\n.set pop"::"r"(val)); break;
+	case 13: __asm__ __volatile__ (".set push\n.set hardfloat\ndmtc1\t%0,$13\n.set pop"::"r"(val)); break;
+	case 14: __asm__ __volatile__ (".set push\n.set hardfloat\ndmtc1\t%0,$14\n.set pop"::"r"(val)); break;
+	case 15: __asm__ __volatile__ (".set push\n.set hardfloat\ndmtc1\t%0,$15\n.set pop"::"r"(val)); break;
+	case 16: __asm__ __volatile__ (".set push\n.set hardfloat\ndmtc1\t%0,$16\n.set pop"::"r"(val)); break;
+	case 17: __asm__ __volatile__ (".set push\n.set hardfloat\ndmtc1\t%0,$17\n.set pop"::"r"(val)); break;
+	case 18: __asm__ __volatile__ (".set push\n.set hardfloat\ndmtc1\t%0,$18\n.set pop"::"r"(val)); break;
+	case 19: __asm__ __volatile__ (".set push\n.set hardfloat\ndmtc1\t%0,$19\n.set pop"::"r"(val)); break;
+	case 20: __asm__ __volatile__ (".set push\n.set hardfloat\ndmtc1\t%0,$20\n.set pop"::"r"(val)); break;
+	case 21: __asm__ __volatile__ (".set push\n.set hardfloat\ndmtc1\t%0,$21\n.set pop"::"r"(val)); break;
+	case 22: __asm__ __volatile__ (".set push\n.set hardfloat\ndmtc1\t%0,$22\n.set pop"::"r"(val)); break;
+	case 23: __asm__ __volatile__ (".set push\n.set hardfloat\ndmtc1\t%0,$23\n.set pop"::"r"(val)); break;
+	case 24: __asm__ __volatile__ (".set push\n.set hardfloat\ndmtc1\t%0,$24\n.set pop"::"r"(val)); break;
+	case 25: __asm__ __volatile__ (".set push\n.set hardfloat\ndmtc1\t%0,$25\n.set pop"::"r"(val)); break;
+	case 26: __asm__ __volatile__ (".set push\n.set hardfloat\ndmtc1\t%0,$26\n.set pop"::"r"(val)); break;
+	case 27: __asm__ __volatile__ (".set push\n.set hardfloat\ndmtc1\t%0,$27\n.set pop"::"r"(val)); break;
+	case 28: __asm__ __volatile__ (".set push\n.set hardfloat\ndmtc1\t%0,$28\n.set pop"::"r"(val)); break;
+	case 29: __asm__ __volatile__ (".set push\n.set hardfloat\ndmtc1\t%0,$29\n.set pop"::"r"(val)); break;
+	case 30: __asm__ __volatile__ (".set push\n.set hardfloat\ndmtc1\t%0,$30\n.set pop"::"r"(val)); break;
+	case 31: __asm__ __volatile__ (".set push\n.set hardfloat\ndmtc1\t%0,$31\n.set pop"::"r"(val)); break;
+	}
+}
+
+static inline unsigned long dmfc1(unsigned reg)
+{
+	unsigned long uninitialized_var(val);
+
+	switch (reg) {
+	case 0: __asm__ __volatile__ (".set push\n.set hardfloat\ndmfc1\t%0,$0\n.set pop":"=r"(val)); break;
+	case 1: __asm__ __volatile__ (".set push\n.set hardfloat\ndmfc1\t%0,$1\n.set pop":"=r"(val)); break;
+	case 2: __asm__ __volatile__ (".set push\n.set hardfloat\ndmfc1\t%0,$2\n.set pop":"=r"(val)); break;
+	case 3: __asm__ __volatile__ (".set push\n.set hardfloat\ndmfc1\t%0,$3\n.set pop":"=r"(val)); break;
+	case 4: __asm__ __volatile__ (".set push\n.set hardfloat\ndmfc1\t%0,$4\n.set pop":"=r"(val)); break;
+	case 5: __asm__ __volatile__ (".set push\n.set hardfloat\ndmfc1\t%0,$5\n.set pop":"=r"(val)); break;
+	case 6: __asm__ __volatile__ (".set push\n.set hardfloat\ndmfc1\t%0,$6\n.set pop":"=r"(val)); break;
+	case 7: __asm__ __volatile__ (".set push\n.set hardfloat\ndmfc1\t%0,$7\n.set pop":"=r"(val)); break;
+	case 8: __asm__ __volatile__ (".set push\n.set hardfloat\ndmfc1\t%0,$8\n.set pop":"=r"(val)); break;
+	case 9: __asm__ __volatile__ (".set push\n.set hardfloat\ndmfc1\t%0,$9\n.set pop":"=r"(val)); break;
+	case 10: __asm__ __volatile__ (".set push\n.set hardfloat\ndmfc1\t%0,$10\n.set pop":"=r"(val)); break;
+	case 11: __asm__ __volatile__ (".set push\n.set hardfloat\ndmfc1\t%0,$11\n.set pop":"=r"(val)); break;
+	case 12: __asm__ __volatile__ (".set push\n.set hardfloat\ndmfc1\t%0,$12\n.set pop":"=r"(val)); break;
+	case 13: __asm__ __volatile__ (".set push\n.set hardfloat\ndmfc1\t%0,$13\n.set pop":"=r"(val)); break;
+	case 14: __asm__ __volatile__ (".set push\n.set hardfloat\ndmfc1\t%0,$14\n.set pop":"=r"(val)); break;
+	case 15: __asm__ __volatile__ (".set push\n.set hardfloat\ndmfc1\t%0,$15\n.set pop":"=r"(val)); break;
+	case 16: __asm__ __volatile__ (".set push\n.set hardfloat\ndmfc1\t%0,$16\n.set pop":"=r"(val)); break;
+	case 17: __asm__ __volatile__ (".set push\n.set hardfloat\ndmfc1\t%0,$17\n.set pop":"=r"(val)); break;
+	case 18: __asm__ __volatile__ (".set push\n.set hardfloat\ndmfc1\t%0,$18\n.set pop":"=r"(val)); break;
+	case 19: __asm__ __volatile__ (".set push\n.set hardfloat\ndmfc1\t%0,$19\n.set pop":"=r"(val)); break;
+	case 20: __asm__ __volatile__ (".set push\n.set hardfloat\ndmfc1\t%0,$20\n.set pop":"=r"(val)); break;
+	case 21: __asm__ __volatile__ (".set push\n.set hardfloat\ndmfc1\t%0,$21\n.set pop":"=r"(val)); break;
+	case 22: __asm__ __volatile__ (".set push\n.set hardfloat\ndmfc1\t%0,$22\n.set pop":"=r"(val)); break;
+	case 23: __asm__ __volatile__ (".set push\n.set hardfloat\ndmfc1\t%0,$23\n.set pop":"=r"(val)); break;
+	case 24: __asm__ __volatile__ (".set push\n.set hardfloat\ndmfc1\t%0,$24\n.set pop":"=r"(val)); break;
+	case 25: __asm__ __volatile__ (".set push\n.set hardfloat\ndmfc1\t%0,$25\n.set pop":"=r"(val)); break;
+	case 26: __asm__ __volatile__ (".set push\n.set hardfloat\ndmfc1\t%0,$26\n.set pop":"=r"(val)); break;
+	case 27: __asm__ __volatile__ (".set push\n.set hardfloat\ndmfc1\t%0,$27\n.set pop":"=r"(val)); break;
+	case 28: __asm__ __volatile__ (".set push\n.set hardfloat\ndmfc1\t%0,$28\n.set pop":"=r"(val)); break;
+	case 29: __asm__ __volatile__ (".set push\n.set hardfloat\ndmfc1\t%0,$29\n.set pop":"=r"(val)); break;
+	case 30: __asm__ __volatile__ (".set push\n.set hardfloat\ndmfc1\t%0,$30\n.set pop":"=r"(val)); break;
+	case 31: __asm__ __volatile__ (".set push\n.set hardfloat\ndmfc1\t%0,$31\n.set pop":"=r"(val)); break;
+	}
+
+	return val;
+}
+#else /* !CONFIG_64BIT */
+
+static inline void mtc1_mthc1(unsigned long val, unsigned long val2, unsigned reg)
+{
+	switch (reg) {
+#ifdef __BIG_ENDIAN
+	case 0:  __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$0\n\tmthc1\t%1,$0\n.set pop"::"r"(val2),"r"(val)); break;
+	case 1:  __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$1\n\tmthc1\t%1,$1\n.set pop"::"r"(val2),"r"(val)); break;
+	case 2:  __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$2\n\tmthc1\t%1,$2\n.set pop"::"r"(val2),"r"(val)); break;
+	case 3:  __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$3\n\tmthc1\t%1,$3\n.set pop"::"r"(val2),"r"(val)); break;
+	case 4:  __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$4\n\tmthc1\t%1,$4\n.set pop"::"r"(val2),"r"(val)); break;
+	case 5:  __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$5\n\tmthc1\t%1,$5\n.set pop"::"r"(val2),"r"(val)); break;
+	case 6:  __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$6\n\tmthc1\t%1,$6\n.set pop"::"r"(val2),"r"(val)); break;
+	case 7:  __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$7\n\tmthc1\t%1,$7\n.set pop"::"r"(val2),"r"(val)); break;
+	case 8:  __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$8\n\tmthc1\t%1,$8\n.set pop"::"r"(val2),"r"(val)); break;
+	case 9:  __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$9\n\tmthc1\t%1,$9\n.set pop"::"r"(val2),"r"(val)); break;
+	case 10: __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$10\n\tmthc1\t%1,$10\n.set pop"::"r"(val2),"r"(val)); break;
+	case 11: __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$11\n\tmthc1\t%1,$11\n.set pop"::"r"(val2),"r"(val)); break;
+	case 12: __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$12\n\tmthc1\t%1,$12\n.set pop"::"r"(val2),"r"(val)); break;
+	case 13: __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$13\n\tmthc1\t%1,$13\n.set pop"::"r"(val2),"r"(val)); break;
+	case 14: __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$14\n\tmthc1\t%1,$14\n.set pop"::"r"(val2),"r"(val)); break;
+	case 15: __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$15\n\tmthc1\t%1,$15\n.set pop"::"r"(val2),"r"(val)); break;
+	case 16: __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$16\n\tmthc1\t%1,$16\n.set pop"::"r"(val2),"r"(val)); break;
+	case 17: __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$17\n\tmthc1\t%1,$17\n.set pop"::"r"(val2),"r"(val)); break;
+	case 18: __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$18\n\tmthc1\t%1,$18\n.set pop"::"r"(val2),"r"(val)); break;
+	case 19: __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$19\n\tmthc1\t%1,$19\n.set pop"::"r"(val2),"r"(val)); break;
+	case 20: __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$20\n\tmthc1\t%1,$20\n.set pop"::"r"(val2),"r"(val)); break;
+	case 21: __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$21\n\tmthc1\t%1,$21\n.set pop"::"r"(val2),"r"(val)); break;
+	case 22: __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$22\n\tmthc1\t%1,$22\n.set pop"::"r"(val2),"r"(val)); break;
+	case 23: __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$23\n\tmthc1\t%1,$23\n.set pop"::"r"(val2),"r"(val)); break;
+	case 24: __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$24\n\tmthc1\t%1,$24\n.set pop"::"r"(val2),"r"(val)); break;
+	case 25: __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$25\n\tmthc1\t%1,$25\n.set pop"::"r"(val2),"r"(val)); break;
+	case 26: __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$26\n\tmthc1\t%1,$26\n.set pop"::"r"(val2),"r"(val)); break;
+	case 27: __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$27\n\tmthc1\t%1,$27\n.set pop"::"r"(val2),"r"(val)); break;
+	case 28: __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$28\n\tmthc1\t%1,$28\n.set pop"::"r"(val2),"r"(val)); break;
+	case 29: __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$29\n\tmthc1\t%1,$29\n.set pop"::"r"(val2),"r"(val)); break;
+	case 30: __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$30\n\tmthc1\t%1,$30\n.set pop"::"r"(val2),"r"(val)); break;
+	case 31: __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$31\n\tmthc1\t%1,$31\n.set pop"::"r"(val2),"r"(val)); break;
+	}
+#endif
+#ifdef __LITTLE_ENDIAN
+	case 0:  __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$0\n\tmthc1\t%1,$0\n.set pop"::"r"(val),"r"(val2)); break;
+	case 1:  __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$1\n\tmthc1\t%1,$1\n.set pop"::"r"(val),"r"(val2)); break;
+	case 2:  __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$2\n\tmthc1\t%1,$2\n.set pop"::"r"(val),"r"(val2)); break;
+	case 3:  __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$3\n\tmthc1\t%1,$3\n.set pop"::"r"(val),"r"(val2)); break;
+	case 4:  __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$4\n\tmthc1\t%1,$4\n.set pop"::"r"(val),"r"(val2)); break;
+	case 5:  __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$5\n\tmthc1\t%1,$5\n.set pop"::"r"(val),"r"(val2)); break;
+	case 6:  __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$6\n\tmthc1\t%1,$6\n.set pop"::"r"(val),"r"(val2)); break;
+	case 7:  __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$7\n\tmthc1\t%1,$7\n.set pop"::"r"(val),"r"(val2)); break;
+	case 8:  __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$8\n\tmthc1\t%1,$8\n.set pop"::"r"(val),"r"(val2)); break;
+	case 9:  __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$9\n\tmthc1\t%1,$9\n.set pop"::"r"(val),"r"(val2)); break;
+	case 10: __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$10\n\tmthc1\t%1,$10\n.set pop"::"r"(val),"r"(val2)); break;
+	case 11: __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$11\n\tmthc1\t%1,$11\n.set pop"::"r"(val),"r"(val2)); break;
+	case 12: __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$12\n\tmthc1\t%1,$12\n.set pop"::"r"(val),"r"(val2)); break;
+	case 13: __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$13\n\tmthc1\t%1,$13\n.set pop"::"r"(val),"r"(val2)); break;
+	case 14: __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$14\n\tmthc1\t%1,$14\n.set pop"::"r"(val),"r"(val2)); break;
+	case 15: __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$15\n\tmthc1\t%1,$15\n.set pop"::"r"(val),"r"(val2)); break;
+	case 16: __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$16\n\tmthc1\t%1,$16\n.set pop"::"r"(val),"r"(val2)); break;
+	case 17: __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$17\n\tmthc1\t%1,$17\n.set pop"::"r"(val),"r"(val2)); break;
+	case 18: __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$18\n\tmthc1\t%1,$18\n.set pop"::"r"(val),"r"(val2)); break;
+	case 19: __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$19\n\tmthc1\t%1,$19\n.set pop"::"r"(val),"r"(val2)); break;
+	case 20: __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$20\n\tmthc1\t%1,$20\n.set pop"::"r"(val),"r"(val2)); break;
+	case 21: __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$21\n\tmthc1\t%1,$21\n.set pop"::"r"(val),"r"(val2)); break;
+	case 22: __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$22\n\tmthc1\t%1,$22\n.set pop"::"r"(val),"r"(val2)); break;
+	case 23: __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$23\n\tmthc1\t%1,$23\n.set pop"::"r"(val),"r"(val2)); break;
+	case 24: __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$24\n\tmthc1\t%1,$24\n.set pop"::"r"(val),"r"(val2)); break;
+	case 25: __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$25\n\tmthc1\t%1,$25\n.set pop"::"r"(val),"r"(val2)); break;
+	case 26: __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$26\n\tmthc1\t%1,$26\n.set pop"::"r"(val),"r"(val2)); break;
+	case 27: __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$27\n\tmthc1\t%1,$27\n.set pop"::"r"(val),"r"(val2)); break;
+	case 28: __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$28\n\tmthc1\t%1,$28\n.set pop"::"r"(val),"r"(val2)); break;
+	case 29: __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$29\n\tmthc1\t%1,$29\n.set pop"::"r"(val),"r"(val2)); break;
+	case 30: __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$30\n\tmthc1\t%1,$30\n.set pop"::"r"(val),"r"(val2)); break;
+	case 31: __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$31\n\tmthc1\t%1,$31\n.set pop"::"r"(val),"r"(val2)); break;
+	}
+#endif
+}
+
+static inline void mfc1_mfhc1(unsigned long *val, unsigned long *val2, unsigned reg)
+{
+	unsigned long uninitialized_var(lval), uninitialized_var(lval2);
+
+	switch (reg) {
+#ifdef __BIG_ENDIAN
+	case 0:  __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$0\n\tmfhc1\t%1,$0\n.set pop":"=r"(lval2),"=r"(lval)); break;
+	case 1:  __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$1\n\tmfhc1\t%1,$1\n.set pop":"=r"(lval2),"=r"(lval)); break;
+	case 2:  __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$2\n\tmfhc1\t%1,$2\n.set pop":"=r"(lval2),"=r"(lval)); break;
+	case 3:  __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$3\n\tmfhc1\t%1,$3\n.set pop":"=r"(lval2),"=r"(lval)); break;
+	case 4:  __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$4\n\tmfhc1\t%1,$4\n.set pop":"=r"(lval2),"=r"(lval)); break;
+	case 5:  __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$5\n\tmfhc1\t%1,$5\n.set pop":"=r"(lval2),"=r"(lval)); break;
+	case 6:  __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$6\n\tmfhc1\t%1,$6\n.set pop":"=r"(lval2),"=r"(lval)); break;
+	case 7:  __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$7\n\tmfhc1\t%1,$7\n.set pop":"=r"(lval2),"=r"(lval)); break;
+	case 8:  __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$8\n\tmfhc1\t%1,$8\n.set pop":"=r"(lval2),"=r"(lval)); break;
+	case 9:  __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$9\n\tmfhc1\t%1,$9\n.set pop":"=r"(lval2),"=r"(lval)); break;
+	case 10: __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$10\n\tmfhc1\t%1,$10\n.set pop":"=r"(lval2),"=r"(lval)); break;
+	case 11: __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$11\n\tmfhc1\t%1,$11\n.set pop":"=r"(lval2),"=r"(lval)); break;
+	case 12: __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$12\n\tmfhc1\t%1,$12\n.set pop":"=r"(lval2),"=r"(lval)); break;
+	case 13: __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$13\n\tmfhc1\t%1,$13\n.set pop":"=r"(lval2),"=r"(lval)); break;
+	case 14: __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$14\n\tmfhc1\t%1,$14\n.set pop":"=r"(lval2),"=r"(lval)); break;
+	case 15: __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$15\n\tmfhc1\t%1,$15\n.set pop":"=r"(lval2),"=r"(lval)); break;
+	case 16: __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$16\n\tmfhc1\t%1,$16\n.set pop":"=r"(lval2),"=r"(lval)); break;
+	case 17: __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$17\n\tmfhc1\t%1,$17\n.set pop":"=r"(lval2),"=r"(lval)); break;
+	case 18: __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$18\n\tmfhc1\t%1,$18\n.set pop":"=r"(lval2),"=r"(lval)); break;
+	case 19: __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$19\n\tmfhc1\t%1,$19\n.set pop":"=r"(lval2),"=r"(lval)); break;
+	case 20: __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$20\n\tmfhc1\t%1,$20\n.set pop":"=r"(lval2),"=r"(lval)); break;
+	case 21: __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$21\n\tmfhc1\t%1,$21\n.set pop":"=r"(lval2),"=r"(lval)); break;
+	case 22: __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$22\n\tmfhc1\t%1,$22\n.set pop":"=r"(lval2),"=r"(lval)); break;
+	case 23: __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$23\n\tmfhc1\t%1,$23\n.set pop":"=r"(lval2),"=r"(lval)); break;
+	case 24: __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$24\n\tmfhc1\t%1,$24\n.set pop":"=r"(lval2),"=r"(lval)); break;
+	case 25: __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$25\n\tmfhc1\t%1,$25\n.set pop":"=r"(lval2),"=r"(lval)); break;
+	case 26: __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$26\n\tmfhc1\t%1,$26\n.set pop":"=r"(lval2),"=r"(lval)); break;
+	case 27: __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$27\n\tmfhc1\t%1,$27\n.set pop":"=r"(lval2),"=r"(lval)); break;
+	case 28: __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$28\n\tmfhc1\t%1,$28\n.set pop":"=r"(lval2),"=r"(lval)); break;
+	case 29: __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$29\n\tmfhc1\t%1,$29\n.set pop":"=r"(lval2),"=r"(lval)); break;
+	case 30: __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$30\n\tmfhc1\t%1,$30\n.set pop":"=r"(lval2),"=r"(lval)); break;
+	case 31: __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$31\n\tmfhc1\t%1,$31\n.set pop":"=r"(lval2),"=r"(lval)); break;
+#endif
+#ifdef __LITTLE_ENDIAN
+	case 0:  __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$0\n\tmfhc1\t%1,$0\n.set pop":"=r"(lval),"=r"(lval2)); break;
+	case 1:  __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$1\n\tmfhc1\t%1,$1\n.set pop":"=r"(lval),"=r"(lval2)); break;
+	case 2:  __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$2\n\tmfhc1\t%1,$2\n.set pop":"=r"(lval),"=r"(lval2)); break;
+	case 3:  __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$3\n\tmfhc1\t%1,$3\n.set pop":"=r"(lval),"=r"(lval2)); break;
+	case 4:  __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$4\n\tmfhc1\t%1,$4\n.set pop":"=r"(lval),"=r"(lval2)); break;
+	case 5:  __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$5\n\tmfhc1\t%1,$5\n.set pop":"=r"(lval),"=r"(lval2)); break;
+	case 6:  __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$6\n\tmfhc1\t%1,$6\n.set pop":"=r"(lval),"=r"(lval2)); break;
+	case 7:  __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$7\n\tmfhc1\t%1,$7\n.set pop":"=r"(lval),"=r"(lval2)); break;
+	case 8:  __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$8\n\tmfhc1\t%1,$8\n.set pop":"=r"(lval),"=r"(lval2)); break;
+	case 9:  __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$9\n\tmfhc1\t%1,$9\n.set pop":"=r"(lval),"=r"(lval2)); break;
+	case 10: __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$10\n\tmfhc1\t%1,$10\n.set pop":"=r"(lval),"=r"(lval2)); break;
+	case 11: __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$11\n\tmfhc1\t%1,$11\n.set pop":"=r"(lval),"=r"(lval2)); break;
+	case 12: __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$12\n\tmfhc1\t%1,$12\n.set pop":"=r"(lval),"=r"(lval2)); break;
+	case 13: __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$13\n\tmfhc1\t%1,$13\n.set pop":"=r"(lval),"=r"(lval2)); break;
+	case 14: __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$14\n\tmfhc1\t%1,$14\n.set pop":"=r"(lval),"=r"(lval2)); break;
+	case 15: __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$15\n\tmfhc1\t%1,$15\n.set pop":"=r"(lval),"=r"(lval2)); break;
+	case 16: __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$16\n\tmfhc1\t%1,$16\n.set pop":"=r"(lval),"=r"(lval2)); break;
+	case 17: __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$17\n\tmfhc1\t%1,$17\n.set pop":"=r"(lval),"=r"(lval2)); break;
+	case 18: __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$18\n\tmfhc1\t%1,$18\n.set pop":"=r"(lval),"=r"(lval2)); break;
+	case 19: __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$19\n\tmfhc1\t%1,$19\n.set pop":"=r"(lval),"=r"(lval2)); break;
+	case 20: __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$20\n\tmfhc1\t%1,$20\n.set pop":"=r"(lval),"=r"(lval2)); break;
+	case 21: __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$21\n\tmfhc1\t%1,$21\n.set pop":"=r"(lval),"=r"(lval2)); break;
+	case 22: __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$22\n\tmfhc1\t%1,$22\n.set pop":"=r"(lval),"=r"(lval2)); break;
+	case 23: __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$23\n\tmfhc1\t%1,$23\n.set pop":"=r"(lval),"=r"(lval2)); break;
+	case 24: __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$24\n\tmfhc1\t%1,$24\n.set pop":"=r"(lval),"=r"(lval2)); break;
+	case 25: __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$25\n\tmfhc1\t%1,$25\n.set pop":"=r"(lval),"=r"(lval2)); break;
+	case 26: __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$26\n\tmfhc1\t%1,$26\n.set pop":"=r"(lval),"=r"(lval2)); break;
+	case 27: __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$27\n\tmfhc1\t%1,$27\n.set pop":"=r"(lval),"=r"(lval2)); break;
+	case 28: __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$28\n\tmfhc1\t%1,$28\n.set pop":"=r"(lval),"=r"(lval2)); break;
+	case 29: __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$29\n\tmfhc1\t%1,$29\n.set pop":"=r"(lval),"=r"(lval2)); break;
+	case 30: __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$30\n\tmfhc1\t%1,$30\n.set pop":"=r"(lval),"=r"(lval2)); break;
+	case 31: __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$31\n\tmfhc1\t%1,$31\n.set pop":"=r"(lval),"=r"(lval2)); break;
+#endif
+	}
+	*val = lval;
+	*val2 = lval2;
+}
+#endif /* CONFIG_64BIT */
+
+static inline void mtc1_pair(unsigned long val, unsigned long val2, unsigned reg)
+{
+	switch (reg & ~0x1) {
+#ifdef __BIG_ENDIAN
+	case 0:  __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$0\n\tmtc1\t%1,$1\n.set pop"::"r"(val2),"r"(val)); break;
+	case 2:  __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$2\n\tmtc1\t%1,$3\n.set pop"::"r"(val2),"r"(val)); break;
+	case 4:  __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$4\n\tmtc1\t%1,$5\n.set pop"::"r"(val2),"r"(val)); break;
+	case 6:  __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$6\n\tmtc1\t%1,$7\n.set pop"::"r"(val2),"r"(val)); break;
+	case 8:  __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$8\n\tmtc1\t%1,$9\n.set pop"::"r"(val2),"r"(val)); break;
+	case 10: __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$10\n\tmtc1\t%1,$11\n.set pop"::"r"(val2),"r"(val)); break;
+	case 12: __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$12\n\tmtc1\t%1,$13\n.set pop"::"r"(val2),"r"(val)); break;
+	case 14: __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$14\n\tmtc1\t%1,$15\n.set pop"::"r"(val2),"r"(val)); break;
+	case 16: __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$16\n\tmtc1\t%1,$17\n.set pop"::"r"(val2),"r"(val)); break;
+	case 18: __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$18\n\tmtc1\t%1,$19\n.set pop"::"r"(val2),"r"(val)); break;
+	case 20: __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$20\n\tmtc1\t%1,$21\n.set pop"::"r"(val2),"r"(val)); break;
+	case 22: __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$22\n\tmtc1\t%1,$23\n.set pop"::"r"(val2),"r"(val)); break;
+	case 24: __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$24\n\tmtc1\t%1,$25\n.set pop"::"r"(val2),"r"(val)); break;
+	case 26: __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$26\n\tmtc1\t%1,$27\n.set pop"::"r"(val2),"r"(val)); break;
+	case 28: __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$28\n\tmtc1\t%1,$29\n.set pop"::"r"(val2),"r"(val)); break;
+	case 30: __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$30\n\tmtc1\t%1,$31\n.set pop"::"r"(val2),"r"(val)); break;
+#endif
+#ifdef __LITTLE_ENDIAN
+	case 0:  __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$0\n\tmtc1\t%1,$1\n.set pop"::"r"(val),"r"(val2)); break;
+	case 2:  __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$2\n\tmtc1\t%1,$3\n.set pop"::"r"(val),"r"(val2)); break;
+	case 4:  __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$4\n\tmtc1\t%1,$5\n.set pop"::"r"(val),"r"(val2)); break;
+	case 6:  __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$6\n\tmtc1\t%1,$7\n.set pop"::"r"(val),"r"(val2)); break;
+	case 8:  __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$8\n\tmtc1\t%1,$9\n.set pop"::"r"(val),"r"(val2)); break;
+	case 10: __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$10\n\tmtc1\t%1,$11\n.set pop"::"r"(val),"r"(val2)); break;
+	case 12: __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$12\n\tmtc1\t%1,$13\n.set pop"::"r"(val),"r"(val2)); break;
+	case 14: __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$14\n\tmtc1\t%1,$15\n.set pop"::"r"(val),"r"(val2)); break;
+	case 16: __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$16\n\tmtc1\t%1,$17\n.set pop"::"r"(val),"r"(val2)); break;
+	case 18: __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$18\n\tmtc1\t%1,$19\n.set pop"::"r"(val),"r"(val2)); break;
+	case 20: __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$20\n\tmtc1\t%1,$21\n.set pop"::"r"(val),"r"(val2)); break;
+	case 22: __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$22\n\tmtc1\t%1,$23\n.set pop"::"r"(val),"r"(val2)); break;
+	case 24: __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$24\n\tmtc1\t%1,$25\n.set pop"::"r"(val),"r"(val2)); break;
+	case 26: __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$26\n\tmtc1\t%1,$27\n.set pop"::"r"(val),"r"(val2)); break;
+	case 28: __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$28\n\tmtc1\t%1,$29\n.set pop"::"r"(val),"r"(val2)); break;
+	case 30: __asm__ __volatile__ (".set push\n.set hardfloat\nmtc1\t%0,$30\n\tmtc1\t%1,$31\n.set pop"::"r"(val),"r"(val2)); break;
+#endif
+	}
+}
+
+static inline void mfc1_pair(unsigned long *val, unsigned long *val2, unsigned reg)
+{
+	unsigned long uninitialized_var(lval), uninitialized_var(lval2);
+
+	switch (reg & ~0x1) {
+#ifdef __BIG_ENDIAN
+	case 0:  __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$0\n\tmfc1\t%1,$1\n.set pop":"=r"(lval2),"=r"(lval)); break;
+	case 2:  __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$2\n\tmfc1\t%1,$3\n.set pop":"=r"(lval2),"=r"(lval)); break;
+	case 4:  __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$4\n\tmfc1\t%1,$5\n.set pop":"=r"(lval2),"=r"(lval)); break;
+	case 6:  __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$6\n\tmfc1\t%1,$7\n.set pop":"=r"(lval2),"=r"(lval)); break;
+	case 8:  __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$8\n\tmfc1\t%1,$9\n.set pop":"=r"(lval2),"=r"(lval)); break;
+	case 10: __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$10\n\tmfc1\t%1,$11\n.set pop":"=r"(lval2),"=r"(lval)); break;
+	case 12: __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$12\n\tmfc1\t%1,$13\n.set pop":"=r"(lval2),"=r"(lval)); break;
+	case 14: __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$14\n\tmfc1\t%1,$15\n.set pop":"=r"(lval2),"=r"(lval)); break;
+	case 16: __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$16\n\tmfc1\t%1,$17\n.set pop":"=r"(lval2),"=r"(lval)); break;
+	case 18: __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$18\n\tmfc1\t%1,$19\n.set pop":"=r"(lval2),"=r"(lval)); break;
+	case 20: __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$20\n\tmfc1\t%1,$21\n.set pop":"=r"(lval2),"=r"(lval)); break;
+	case 22: __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$22\n\tmfc1\t%1,$23\n.set pop":"=r"(lval2),"=r"(lval)); break;
+	case 24: __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$24\n\tmfc1\t%1,$25\n.set pop":"=r"(lval2),"=r"(lval)); break;
+	case 26: __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$26\n\tmfc1\t%1,$27\n.set pop":"=r"(lval2),"=r"(lval)); break;
+	case 28: __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$28\n\tmfc1\t%1,$29\n.set pop":"=r"(lval2),"=r"(lval)); break;
+	case 30: __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$30\n\tmfc1\t%1,$31\n.set pop":"=r"(lval2),"=r"(lval)); break;
+#endif
+#ifdef __LITTLE_ENDIAN
+	case 0:  __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$0\n\tmfc1\t%1,$1\n.set pop":"=r"(lval),"=r"(lval2)); break;
+	case 2:  __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$2\n\tmfc1\t%1,$3\n.set pop":"=r"(lval),"=r"(lval2)); break;
+	case 4:  __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$4\n\tmfc1\t%1,$5\n.set pop":"=r"(lval),"=r"(lval2)); break;
+	case 6:  __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$6\n\tmfc1\t%1,$7\n.set pop":"=r"(lval),"=r"(lval2)); break;
+	case 8:  __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$8\n\tmfc1\t%1,$9\n.set pop":"=r"(lval),"=r"(lval2)); break;
+	case 10: __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$10\n\tmfc1\t%1,$11\n.set pop":"=r"(lval),"=r"(lval2)); break;
+	case 12: __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$12\n\tmfc1\t%1,$13\n.set pop":"=r"(lval),"=r"(lval2)); break;
+	case 14: __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$14\n\tmfc1\t%1,$15\n.set pop":"=r"(lval),"=r"(lval2)); break;
+	case 16: __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$16\n\tmfc1\t%1,$17\n.set pop":"=r"(lval),"=r"(lval2)); break;
+	case 18: __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$18\n\tmfc1\t%1,$19\n.set pop":"=r"(lval),"=r"(lval2)); break;
+	case 20: __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$20\n\tmfc1\t%1,$21\n.set pop":"=r"(lval),"=r"(lval2)); break;
+	case 22: __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$22\n\tmfc1\t%1,$23\n.set pop":"=r"(lval),"=r"(lval2)); break;
+	case 24: __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$24\n\tmfc1\t%1,$25\n.set pop":"=r"(lval),"=r"(lval2)); break;
+	case 26: __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$26\n\tmfc1\t%1,$27\n.set pop":"=r"(lval),"=r"(lval2)); break;
+	case 28: __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$28\n\tmfc1\t%1,$29\n.set pop":"=r"(lval),"=r"(lval2)); break;
+	case 30: __asm__ __volatile__ (".set push\n.set hardfloat\nmfc1\t%0,$30\n\tmfc1\t%1,$31\n.set pop":"=r"(lval),"=r"(lval2)); break;
+#endif
+	}
+	*val = lval;
+	*val2 = lval2;
+}
+
+
 static void emulate_load_store_insn(struct pt_regs *regs,
 	void __user *addr, unsigned int __user *pc)
 {
@@ -684,10 +1009,96 @@ static void emulate_load_store_insn(struct pt_regs *regs,
 		/* Cannot handle 64-bit instructions in 32-bit kernel */
 		goto sigill;
 
-	case lwc1_op:
 	case ldc1_op:
-	case swc1_op:
+		if (!access_ok(VERIFY_READ, addr, 8))
+			goto sigbus;
+
+		preempt_disable();
+		if (is_fpu_owner()) {
+			if (read_c0_status() & ST0_FR) {
+#ifdef CONFIG_64BIT
+				LoadDW(addr, value, res);
+				if (res)
+					goto preempt_fault;
+				dmtc1(value, insn.i_format.rt);
+#else /* !CONFIG_64BIT */
+				unsigned long value2;
+
+				LoadW(addr, value, res);
+				if (res)
+					goto preempt_fault;
+				LoadW((addr + 4), value2, res);
+				if (res)
+					goto preempt_fault;
+				mtc1_mthc1(value, value2, insn.i_format.rt);
+#endif /* CONFIG_64BIT */
+			} else {
+				unsigned long value2;
+
+				LoadW(addr, value, res);
+				if (res)
+					goto preempt_fault;
+				LoadW((addr + 4), value2, res);
+				if (res)
+					goto preempt_fault;
+				mtc1_pair(value, value2, insn.i_format.rt);
+			}
+			preempt_enable();
+			compute_return_epc(regs);
+			break;
+		}
+
+		preempt_enable();
+		goto fpu_continue;
+
 	case sdc1_op:
+		if (!access_ok(VERIFY_WRITE, addr, 8))
+			goto sigbus;
+
+		preempt_disable();
+		if (is_fpu_owner()) {
+			compute_return_epc(regs);
+			if (read_c0_status() & ST0_FR) {
+#ifdef CONFIG_64BIT
+				value = dmfc1(insn.i_format.rt);
+				StoreDW(addr, value, res);
+				if (res)
+					goto preempt_fault;
+#else /* !CONFIG_64BIT */
+				unsigned long value2;
+
+				mfc1_mfhc1(&value, &value2, insn.i_format.rt);
+				StoreW(addr, value, res);
+				if (res)
+					goto preempt_fault;
+				StoreW((addr + 4), value2, res);
+				if (res)
+					goto preempt_fault;
+#endif /* CONFIG_64BIT */
+			} else {
+				unsigned long value2;
+
+				mfc1_pair(&value, &value2, insn.i_format.rt);
+				StoreW(addr, value, res);
+				if (res)
+					goto preempt_fault;
+				StoreW((addr + 4), value2, res);
+				if (res)
+					goto preempt_fault;
+			}
+			preempt_enable();
+			break;
+		}
+
+preempt_fault:
+		preempt_enable();
+		goto fpu_continue;
+
+	case ldxc1_op:
+	case sdxc1_op:
+	case lwc1_op:
+	case swc1_op:
+fpu_continue:
 		die_if_kernel("Unaligned FP access in kernel code", regs);
 		BUG_ON(!used_math());
 
@@ -1111,7 +1522,90 @@ static void emulate_load_store_microMIPS(struct pt_regs *regs,
 		goto sigbus;
 
 	case mm_ldc132_op:
+		if (!access_ok(VERIFY_READ, addr, 8))
+			goto sigbus;
+
+		if ((unsigned long)addr & 0x3)
+			goto fpu_emul;  /* generic case */
+
+		preempt_disable();
+		if (is_fpu_owner()) {
+			if (read_c0_status() & ST0_FR) {
+#ifdef CONFIG_64BIT
+				LoadDW(addr, value, res);
+				if (res)
+					goto preempt_fault;
+				dmtc1(value, insn.mm_i_format.rt);
+#else /* !CONFIG_64BIT */
+				unsigned long value2;
+
+				LoadW(addr, value, res);
+				if (res)
+					goto preempt_fault;
+				LoadW((addr + 4), value2, res);
+				if (res)
+					goto preempt_fault;
+				mtc1_mthc1(value, value2, insn.mm_i_format.rt);
+#endif /* CONFIG_64BIT */
+			} else {
+				unsigned long value2;
+
+				LoadW(addr, value, res);
+				if (res)
+					goto preempt_fault;
+				LoadW((addr + 4), value2, res);
+				if (res)
+					goto preempt_fault;
+				mtc1_pair(value, value2, insn.mm_i_format.rt);
+			}
+			preempt_enable();
+			goto success;
+		}
+
+		preempt_enable();
+		goto fpu_emul;
+
 	case mm_sdc132_op:
+		if (!access_ok(VERIFY_WRITE, addr, 8))
+			goto sigbus;
+
+		preempt_disable();
+		if (is_fpu_owner()) {
+			if (read_c0_status() & ST0_FR) {
+#ifdef CONFIG_64BIT
+				value = dmfc1(insn.mm_i_format.rt);
+				StoreDW(addr, value, res);
+				if (res)
+					goto preempt_fault;
+#else /* !CONFIG_64BIT */
+				unsigned long value2;
+
+				mfc1_mfhc1(&value, &value2, insn.mm_i_format.rt);
+				StoreW(addr, value, res);
+				if (res)
+					goto preempt_fault;
+				StoreW((addr + 4), value2, res);
+				if (res)
+					goto preempt_fault;
+#endif /* CONFIG_64BIT */
+			} else {
+				unsigned long value2;
+
+				mfc1_pair(&value, &value2, insn.mm_i_format.rt);
+				StoreW(addr, value, res);
+				if (res)
+					goto preempt_fault;
+				StoreW((addr + 4), value2, res);
+				if (res)
+					goto preempt_fault;
+			}
+			preempt_enable();
+			goto success;
+		}
+
+		preempt_enable();
+		goto fpu_emul;
+
 	case mm_lwc132_op:
 	case mm_swc132_op:
 fpu_emul:
@@ -1121,7 +1615,7 @@ fpu_emul:
 
 		die_if_kernel("Unaligned FP access in kernel code", regs);
 		BUG_ON(!used_math());
-		BUG_ON(!is_fpu_owner());
+//                BUG_ON(!is_fpu_owner());
 
 		lose_fpu(1);	/* save the FPU state for the emulator */
 		res = fpu_emulator_cop1Handler(regs, &current->thread.fpu, 1,
@@ -1365,6 +1859,8 @@ success:
 #endif
 	return;
 
+preempt_fault:
+	preempt_enable();
 fault:
 	/* roll back jump/branch */
 	regs->cp0_epc = origpc;
