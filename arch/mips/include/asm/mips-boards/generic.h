@@ -67,6 +67,10 @@
 
 extern int mips_revision_sconid;
 
+#ifdef CONFIG_MIPS_APPENDED_DTB
+extern char __appended_dtb[];
+#endif
+
 #ifdef CONFIG_PCI
 extern void mips_pcibios_init(void);
 #else
