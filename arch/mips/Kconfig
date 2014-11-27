@@ -308,6 +308,29 @@ config MACH_LOONGSON1
 	  the ICT (Institute of Computing Technology) and the Chinese Academy
 	  of Sciences.
 
+config MIPS_RANCHU
+	bool "Ranchu (Virtual Platform)"
+	select BOOT_ELF32
+	select BOOT_RAW
+	select CEVT_R4K
+	select CSRC_R4K
+	select DMA_COHERENT
+	select IRQ_CPU
+	select MIPS_CPU_SCACHE
+	select SYS_HAS_CPU_MIPS32_R1
+	select SYS_HAS_CPU_MIPS32_R2
+	select SYS_HAS_CPU_MIPS32_R2_EVA
+	select SYS_HAS_CPU_MIPS32_R6
+	select SYS_HAS_EARLY_PRINTK
+	select SYS_SUPPORTS_32BIT_KERNEL
+	select SYS_SUPPORTS_64BIT_KERNEL
+	select SYS_HAS_CPU_MIPS64_R1
+	select SYS_HAS_CPU_MIPS64_R2
+	select SYS_HAS_CPU_MIPS64_R6
+	select SYS_SUPPORTS_BIG_ENDIAN
+	select SYS_SUPPORTS_LITTLE_ENDIAN
+	select USE_OF
+
 config MIPS_MALTA
 	bool "MIPS Malta board"
 	select ARCH_MAY_HAVE_PC_FDC
@@ -1811,6 +1834,23 @@ config KVM_GUEST_TIMER_FREQ
 	  emulation when determining guest CPU Frequency. Instead, the guest's
 	  timer frequency is specified directly.
 
+config 64BIT_PHYS_ADDR
+	bool "Kernel supports 64 bit physical addresses" if EXPERIMENTAL
+	depends on 64BIT
+	help
+	  Defines 64 bit physical addresses in kernel.
+	  Increases page table sizes.
+
+	  It is an alternative for HIGHMEM usage of huge physical memory.
+	  Requires 64bit capable CPU and 64 bit kernel code model.
+
+	  Note: without this option kernel can support up to 4GB physical
+	  memory for 4KB pages and up to 64GB for 64KB pages.
+
+config ARCH_PHYS_ADDR_T_64BIT
+	def_bool 64BIT_PHYS_ADDR
+
+
 choice
 	prompt "Kernel page size"
 	default PAGE_SIZE_4KB
@@ -2093,13 +2133,6 @@ config SB1_PASS_2_1_WORKAROUNDS
 	bool
 	depends on CPU_SB1 && CPU_SB1_PASS_2
 	default y
-
-
-config 64BIT_PHYS_ADDR
-	bool
-
-config ARCH_PHYS_ADDR_T_64BIT
-       def_bool 64BIT_PHYS_ADDR
 
 choice
 	prompt "SmartMIPS or microMIPS ASE support"
