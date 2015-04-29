@@ -54,6 +54,7 @@ LEAF(_save_fp_context)
 	EX	sdc1 $f29, SC_FPREGS+232(a0)
 	EX	sdc1 $f31, SC_FPREGS+248(a0)
 #endif
+	.set    hardfloat
 
 	/* Store the 16 even double precision registers */
 	EX	sdc1 $f0, SC_FPREGS+0(a0)
