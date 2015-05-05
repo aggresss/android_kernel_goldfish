@@ -2024,6 +2024,13 @@ config MIPS_MT_FPAFF
 	default y
 	depends on MIPS_MT_SMP
 
+config MIPS_GOLDFISH_SWITCH
+	bool "MIPS Goldfish switch class driver"
+	default n
+	depends on MIPS_RANCHU
+	help
+	  Goldfish switch driver implementation for MIPS.
+
 config MIPS_VPE_LOADER
 	bool "VPE loader support."
 	depends on SYS_SUPPORTS_MULTITHREADING && MODULES
