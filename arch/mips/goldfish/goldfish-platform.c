@@ -25,6 +25,8 @@
 #include <asm/bootinfo.h>
 #include <asm/mach-goldfish/irq.h>
 
+#define HIGHMEM_OFFSET (0x20000000)
+
 int GOLDFISH_READY;
 
 static struct resource goldfish_pdev_bus_resources[] = {
@@ -66,7 +68,10 @@ void __init prom_init(void)
 void __init plat_mem_setup(void)
 {
 	unsigned int ramsize = fw_arg1;
+	unsigned int highmem_ramsize = fw_arg2;
 	add_memory_region(0x0, ramsize, BOOT_MEM_RAM);
+	if (highmem_ramsize)
+		add_memory_region(HIGHMEM_OFFSET, highmem_ramsize, BOOT_MEM_RAM);
 }
 
 void prom_free_prom_memory(void)
