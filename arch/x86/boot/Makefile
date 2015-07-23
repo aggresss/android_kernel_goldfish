@@ -59,6 +59,7 @@ KBUILD_CFLAGS	:= $(LINUXINCLUDE) -m32 -g -Os -D_SETUP -D__KERNEL__ \
 		   -include $(srctree)/$(src)/code16gcc.h \
 		   -fno-strict-aliasing -fomit-frame-pointer \
 		   -mno-mmx -mno-sse \
+		   -fno-pic \
 		   $(call cc-option, -ffreestanding) \
 		   $(call cc-option, -fno-toplevel-reorder,\
 		   $(call cc-option, -fno-unit-at-a-time)) \
