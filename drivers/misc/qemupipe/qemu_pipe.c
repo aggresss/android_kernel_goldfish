@@ -56,6 +56,7 @@
 #include <linux/bitops.h>
 #include <linux/io.h>
 #include <linux/slab.h>
+#include <linux/mm.h>
 
 /* Set to 1 for normal debugging, and 2 for extensive one */
 #define PIPE_DEBUG  0
@@ -89,6 +90,7 @@
 #define PIPE_REG_PARAMS_ADDR_LOW    0x18  /* read/write: batch data address */
 #define PIPE_REG_PARAMS_ADDR_HIGH   0x1c  /* read/write: batch data address */
 #define PIPE_REG_ACCESS_PARAMS      0x20  /* write: batch access */
+#define PIPE_REG_VERSION            0x24  /* read: device version */
 
 /* list of commands for PIPE_REG_COMMAND */
 #define CMD_OPEN               1  /* open new channel */
@@ -145,6 +147,7 @@ struct qemu_pipe_dev {
 	struct access_params *aps;
 	int irq;
 	struct radix_tree_root pipes;
+	u32 version;
 };
 
 static struct qemu_pipe_dev   pipe_dev[1];
@@ -254,7 +257,7 @@ static ssize_t qemu_pipe_read_write(struct file *filp, char __user *buffer,
 	const int cmd_offset = is_write ? 0
 					: (CMD_READ_BUFFER - CMD_WRITE_BUFFER);
 	unsigned long address, address_end;
-	int ret = 0;
+	int count = 0, ret = -EINVAL;
 
 	/* If the emulator already closed the pipe, no need to go further */
 	if (test_bit(BIT_CLOSED_ON_HOST, &pipe->flags)) {
@@ -285,64 +288,85 @@ static ssize_t qemu_pipe_read_write(struct file *filp, char __user *buffer,
 	address_end = address + bufflen;
 
 	while (address < address_end) {
-		unsigned long  page_end = (address & PAGE_MASK) + PAGE_SIZE;
-		unsigned long  next     = page_end < address_end ? page_end
-								 : address_end;
-		unsigned long  avail    = next - address;
+		unsigned long page_end = (address & PAGE_MASK) + PAGE_SIZE;
+		unsigned long next     = page_end < address_end ? page_end
+								: address_end;
+		unsigned long avail    = next - address;
 		int status, wakeBit;
+		struct page *page;
 
-		/* Ensure that the corresponding page is properly mapped */
-		if (is_write) {
-			char c;
-			/* Ensure that the page is mapped and readable */
-			if (__get_user(c, (char __user *)address)) {
-				PIPE_E("read fault at address 0x%08x\n",
-					(unsigned int)address);
-				if (!ret)
-					ret = -EFAULT;
-				break;
-			}
+		/* Either vaddr or paddr depending on the device version */
+		unsigned long xaddr;
+
+		/*
+		 * We grab the pages on a page-by-page basis in case user
+		 * space gives us a potentially huge buffer but the read only
+		 * returns a small amount, then there's no need to pin that
+		 * much memory to the process.
+		 */
+		down_read(&current->mm->mmap_sem);
+		ret = get_user_pages(current, current->mm, address, 1,
+				     !is_write, 0, &page, NULL);
+		up_read(&current->mm->mmap_sem);
+		if (ret < 0)
+			return ret;
+
+		if (dev->version) {
+			/* Device version 1 or newer
+			 * expects the physical address.
+			 */
+			xaddr = page_to_phys(page) | (address & ~PAGE_MASK);
 		} else {
-			/* Ensure that the page is mapped and writable */
-			if (__put_user(0, (char __user *)address)) {
-				PIPE_E("write fault at address 0x%08x\n",
-					(unsigned int)address);
-				if (!ret)
-					ret = -EFAULT;
-				break;
-			}
+			/* Device version 0 expects the
+			 * virtual address.
+			 */
+			xaddr = address;
 		}
 
 		/* Now, try to transfer the bytes in the current page */
 		spin_lock_irqsave(&dev->lock, irq_flags);
 		if (dev->aps == NULL || access_with_param(
-			dev, CMD_WRITE_BUFFER + cmd_offset, address, avail,
+			dev, CMD_WRITE_BUFFER + cmd_offset, xaddr, avail,
 			pipe, &status) < 0)
 		{
 			writel((unsigned long)pipe,
 				dev->base + PIPE_REG_CHANNEL);
 			writel(avail, dev->base + PIPE_REG_SIZE);
-			writel(address, dev->base + PIPE_REG_ADDRESS);
+			writel(xaddr, dev->base + PIPE_REG_ADDRESS);
 			writel(CMD_WRITE_BUFFER + cmd_offset,
 				dev->base + PIPE_REG_COMMAND);
 			status = readl(dev->base + PIPE_REG_STATUS);
 		}
 		spin_unlock_irqrestore(&dev->lock, irq_flags);
 
+		if (status > 0 && !is_write)
+			set_page_dirty(page);
+		put_page(page);
+
 		if (status > 0) { /* Correct transfer */
-			ret += status;
+			count += status;
 			address += status;
 			continue;
+		} else if (status == 0) { /* EOF */
+			ret = 0;
+			break;
+		} else if (status < 0 && count > 0) {
+			/*
+			 * An error occured and we already transfered
+			 * something on one of the previous pages.
+			 * Just return what we already copied and log this
+			 * err.
+			 *
+			 * Note: This seems like an incorrect approach but
+			 * cannot change it until we check if any user space
+			 * ABI relies on this behavior.
+			 */
+			if (status != PIPE_ERROR_AGAIN)
+				PIPE_W("goldfish_pipe: backend returned error %d on %s\n",
+					    status, is_write ? "write" : "read");
+			ret = 0;
+			break;
 		}
-
-		if (status == 0)  /* EOF */
-			break;
-
-		/* An error occured. If we already transfered stuff, just
-		* return with its count. We expect the next call to return
-		* an error code */
-		if (ret > 0)
-			break;
 
 		/* If the error is not PIPE_ERROR_AGAIN, or if we are not in
 		* non-blocking mode, just return the error code.
@@ -388,15 +412,15 @@ static ssize_t qemu_pipe_read_write(struct file *filp, char __user *buffer,
 		/* Try to re-acquire the lock */
 		if (mutex_lock_interruptible(&pipe->lock)) {
 			ret = -ERESTARTSYS;
-			goto out;
+			break;
 		}
-
-		/* Try the transfer again */
-		continue;
 	}
 	mutex_unlock(&pipe->lock);
 out:
-	return ret;
+	if (ret < 0)
+		return ret;
+	else
+		return count;
 }
 
 static ssize_t qemu_pipe_read(struct file *filp, char __user *buffer,
@@ -621,6 +645,9 @@ static int qemu_pipe_probe(struct platform_device *pdev)
 		goto err_misc_register;
 
 	setup_access_params_addr(dev);
+
+	/* Acquire PipeDevice version information */
+	dev->version = readl(dev->base + PIPE_REG_VERSION);
 	return 0;
 
 err_misc_register:
