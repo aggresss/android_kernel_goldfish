@@ -23,6 +23,7 @@
 #include <linux/mtd/mtd.h>
 #include <linux/platform_device.h>
 
+#include "goldfish_nand_cache.h"
 #include "goldfish_nand_reg.h"
 
 struct goldfish_nand {
@@ -94,11 +95,12 @@ static int goldfish_nand_erase(struct mtd_info *mtd, struct erase_info *instr)
 	if(rem)
 		goto invalid_arg;
 	ofs *= (mtd->writesize + mtd->oobsize);
-	
+
 	if(len % mtd->writesize)
 		goto invalid_arg;
 	len = len / mtd->writesize * (mtd->writesize + mtd->oobsize);
 
+	goldfish_invalidate_cache(mtd, ofs, len);
 	if(goldfish_nand_cmd(mtd, NAND_CMD_ERASE, ofs, len, NULL) != len) {
 		printk("goldfish_nand_erase: erase failed, start %llx, len %x, dev_size "
 		       "%llx, erase_size %x\n", ofs, len, mtd->size, mtd->erasesize);
@@ -160,19 +162,23 @@ static int goldfish_nand_write_oob(struct mtd_info *mtd, loff_t ofs,
 		goto invalid_arg;
 	if(ops->ooblen + ops->ooboffs > mtd->oobsize)
 		goto invalid_arg;
-	
+
 	rem = do_div(ofs, mtd->writesize);
 	if(rem)
 		goto invalid_arg;
 	ofs *= (mtd->writesize + mtd->oobsize);
 
-	if(ops->datbuf)
+	if (ops->datbuf) {
+		goldfish_invalidate_cache(mtd, ofs, ops->len);
 		ops->retlen = goldfish_nand_cmd(mtd, NAND_CMD_WRITE, ofs,
 		                            ops->len, ops->datbuf);
+	}
 	ofs += mtd->writesize + ops->ooboffs;
-	if(ops->oobbuf)
+	if (ops->oobbuf) {
+		goldfish_invalidate_cache(mtd, ofs, ops->ooblen);
 		ops->oobretlen = goldfish_nand_cmd(mtd, NAND_CMD_WRITE, ofs,
 		                               ops->ooblen, ops->oobbuf);
+	}
 	return 0;
 
 invalid_arg:
@@ -186,6 +192,7 @@ static int goldfish_nand_read(struct mtd_info *mtd, loff_t from, size_t len,
                           size_t *retlen, u_char *buf)
 {
 	uint32_t rem;
+	struct goldfish_nand_cache *cache = NULL;
 
 	if(from + len > mtd->size)
 		goto invalid_arg;
@@ -194,6 +201,26 @@ static int goldfish_nand_read(struct mtd_info *mtd, loff_t from, size_t len,
 	if(rem)
 		goto invalid_arg;
 	from *= (mtd->writesize + mtd->oobsize);
+
+	cache = goldfish_locate_nand_cache(mtd);
+	if (cache != NULL) {
+		if (goldfish_read_from_cache(cache, from, len, retlen, buf)) {
+			return 0;
+		} else {
+			size_t bytes_read = goldfish_nand_cmd(
+				mtd, NAND_CMD_READ, from,
+				goldfish_get_cache_refresh_size(cache),
+				goldfish_get_cache_buffer(cache));
+			if (bytes_read > 0) {
+				goldfish_update_refreshed_cache(cache, from,
+								bytes_read);
+				if (goldfish_read_from_cache(cache, from, len,
+							     retlen, buf)) {
+					return 0;
+				}
+			}
+		}
+	}
 
 	*retlen = goldfish_nand_cmd(mtd, NAND_CMD_READ, from, len, buf);
 	return 0;
@@ -217,6 +244,7 @@ static int goldfish_nand_write(struct mtd_info *mtd, loff_t to, size_t len,
 		goto invalid_arg;
 	to *= (mtd->writesize + mtd->oobsize);
 
+	goldfish_invalidate_cache(mtd, to, len);
 	*retlen = goldfish_nand_cmd(mtd, NAND_CMD_WRITE, to, len, (void *)buf);
 	return 0;
 
@@ -310,6 +338,7 @@ static int goldfish_nand_init_device(struct goldfish_nand *nand, int id)
 	mtd->size *= mtd->writesize;
 	printk("goldfish nand dev%d: size %llx, page %d, extra %d, erase %d\n",
 	       id, mtd->size, mtd->writesize, mtd->oobsize, mtd->erasesize);
+	goldfish_allocate_cache(mtd);
 	spin_unlock_irqrestore(&nand->lock, irq_flags);
 
 	mtd->priv = nand;
@@ -425,10 +454,13 @@ static int goldfish_nand_remove(struct platform_device *pdev)
 {
 	struct goldfish_nand *nand = platform_get_drvdata(pdev);
 	int i;
+	struct mtd_info *mtd = NULL;
 	for(i = 0; i < nand->mtd_count; i++) {
-		if(nand->mtd[i].name) {
-			mtd_device_unregister(&nand->mtd[i]);
-			kfree(nand->mtd[i].name);
+		mtd = &nand->mtd[i];
+		if (mtd->name) {
+			mtd_device_unregister(mtd);
+			goldfish_deallocate_cache(mtd);
+			kfree(mtd->name);
 		}
 	}
 	if (nand->cmd_params)
