@@ -504,6 +504,7 @@ static inline unsigned long dmfc1(unsigned reg)
 }
 #else /* !CONFIG_64BIT */
 
+#ifndef CONFIG_CPU_MIPSR1
 static inline void mtc1_mthc1(unsigned long val, unsigned long val2, unsigned reg)
 {
 	switch (reg) {
@@ -656,6 +657,7 @@ static inline void mfc1_mfhc1(unsigned long *val, unsigned long *val2, unsigned 
 	*val = lval;
 	*val2 = lval2;
 }
+#endif /* CONFIG_CPU_MIPSR1 */
 #endif /* CONFIG_64BIT */
 
 static inline void mtc1_pair(unsigned long val, unsigned long val2, unsigned reg)
@@ -1022,6 +1024,10 @@ static void emulate_load_store_insn(struct pt_regs *regs,
 					goto preempt_fault;
 				dmtc1(value, insn.i_format.rt);
 #else /* !CONFIG_64BIT */
+#ifdef CONFIG_CPU_MIPSR1
+				preempt_enable_no_resched();
+				goto fpu_continue;
+#else
 				unsigned long value2;
 
 				LoadW(addr, value, res);
@@ -1031,6 +1037,7 @@ static void emulate_load_store_insn(struct pt_regs *regs,
 				if (res)
 					goto preempt_fault;
 				mtc1_mthc1(value, value2, insn.i_format.rt);
+#endif
 #endif /* CONFIG_64BIT */
 			} else {
 				unsigned long value2;
@@ -1048,7 +1055,7 @@ static void emulate_load_store_insn(struct pt_regs *regs,
 			break;
 		}
 
-		preempt_enable();
+		preempt_enable_no_resched();
 		goto fpu_continue;
 
 	case sdc1_op:
@@ -1065,6 +1072,13 @@ static void emulate_load_store_insn(struct pt_regs *regs,
 				if (res)
 					goto preempt_fault;
 #else /* !CONFIG_64BIT */
+#ifdef CONFIG_CPU_MIPSR1
+				preempt_enable_no_resched();
+				/* roll back jump/branch */
+				regs->cp0_epc = origpc;
+				regs->regs[31] = orig31;
+				goto fpu_continue;
+#else
 				unsigned long value2;
 
 				mfc1_mfhc1(&value, &value2, insn.i_format.rt);
@@ -1074,6 +1088,7 @@ static void emulate_load_store_insn(struct pt_regs *regs,
 				StoreW((addr + 4), value2, res);
 				if (res)
 					goto preempt_fault;
+#endif
 #endif /* CONFIG_64BIT */
 			} else {
 				unsigned long value2;
@@ -1091,7 +1106,7 @@ static void emulate_load_store_insn(struct pt_regs *regs,
 		}
 
 preempt_fault:
-		preempt_enable();
+		preempt_enable_no_resched();
 		goto fpu_continue;
 
 	case cop1x_op:
@@ -1535,9 +1550,6 @@ static void emulate_load_store_microMIPS(struct pt_regs *regs,
 		if (!access_ok(VERIFY_READ, addr, 8))
 			goto sigbus;
 
-		if ((unsigned long)addr & 0x3)
-			goto fpu_emul;  /* generic case */
-
 		preempt_disable();
 		if (is_fpu_owner()) {
 			if (read_c0_status() & ST0_FR) {
@@ -1547,6 +1559,10 @@ static void emulate_load_store_microMIPS(struct pt_regs *regs,
 					goto preempt_fault;
 				dmtc1(value, insn.mm_i_format.rt);
 #else /* !CONFIG_64BIT */
+#ifdef CONFIG_CPU_MIPSR1
+				preempt_enable_no_resched();
+				goto fpu_emul;
+#else
 				unsigned long value2;
 
 				LoadW(addr, value, res);
@@ -1556,6 +1572,7 @@ static void emulate_load_store_microMIPS(struct pt_regs *regs,
 				if (res)
 					goto preempt_fault;
 				mtc1_mthc1(value, value2, insn.mm_i_format.rt);
+#endif
 #endif /* CONFIG_64BIT */
 			} else {
 				unsigned long value2;
@@ -1572,7 +1589,7 @@ static void emulate_load_store_microMIPS(struct pt_regs *regs,
 			goto success;
 		}
 
-		preempt_enable();
+               preempt_enable_no_resched();
 		goto fpu_emul;
 
 	case mm_sdc132_op:
@@ -1588,6 +1605,10 @@ static void emulate_load_store_microMIPS(struct pt_regs *regs,
 				if (res)
 					goto preempt_fault;
 #else /* !CONFIG_64BIT */
+#ifdef CONFIG_CPU_MIPSR1
+				preempt_enable_no_resched();
+				goto fpu_emul;
+#else
 				unsigned long value2;
 
 				mfc1_mfhc1(&value, &value2, insn.mm_i_format.rt);
@@ -1597,6 +1618,7 @@ static void emulate_load_store_microMIPS(struct pt_regs *regs,
 				StoreW((addr + 4), value2, res);
 				if (res)
 					goto preempt_fault;
+#endif
 #endif /* CONFIG_64BIT */
 			} else {
 				unsigned long value2;
@@ -1613,7 +1635,7 @@ static void emulate_load_store_microMIPS(struct pt_regs *regs,
 			goto success;
 		}
 
-		preempt_enable();
+		preempt_enable_no_resched();
 		goto fpu_emul;
 
 	case mm_lwc132_op:
