@@ -156,6 +156,79 @@ static void emulate_load_store_insn(struct pt_regs *regs,
 	/*
 	 * The remaining opcodes are the ones that are really of interest.
 	 */
+
+	case spec3_op:
+		switch (insn.dsp_format.func) {
+		case lx_op:
+			switch (insn.dsp_format.op) {
+			case lwx_op:
+				if (!access_ok(VERIFY_READ, addr, 4))
+					goto sigbus;
+
+				__asm__ __volatile__ (
+#ifdef __BIG_ENDIAN
+					"1:\tlwl\t%0, (%2)\n"
+					"2:\tlwr\t%0, 3(%2)\n\t"
+#endif
+#ifdef __LITTLE_ENDIAN
+					"1:\tlwl\t%0, 3(%2)\n"
+					"2:\tlwr\t%0, (%2)\n\t"
+#endif
+					"li\t%1, 0\n"
+					"3:\t.section\t.fixup,\"ax\"\n\t"
+					"4:\tli\t%1, %3\n\t"
+					"j\t3b\n\t"
+					".previous\n\t"
+					".section\t__ex_table,\"a\"\n\t"
+					STR(PTR)"\t1b, 4b\n\t"
+					STR(PTR)"\t2b, 4b\n\t"
+					".previous"
+					: "=&r" (value), "=r" (res)
+					: "r" (addr), "i" (-EFAULT));
+				if (res)
+					goto fault;
+				compute_return_epc(regs);
+				regs->regs[insn.dsp_format.rd] = value;
+				break;
+			case lhx_op:
+				if (!access_ok(VERIFY_READ, addr, 2))
+					goto sigbus;
+
+				__asm__ __volatile__ (".set\tnoat\n"
+#ifdef __BIG_ENDIAN
+					"1:\tlb\t%0, 0(%2)\n"
+					"2:\tlbu\t$1, 1(%2)\n\t"
+#endif
+#ifdef __LITTLE_ENDIAN
+					"1:\tlb\t%0, 1(%2)\n"
+					"2:\tlbu\t$1, 0(%2)\n\t"
+#endif
+					"sll\t%0, 0x8\n\t"
+					"or\t%0, $1\n\t"
+					"li\t%1, 0\n"
+					"3:\t.set\tat\n\t"
+					".section\t.fixup,\"ax\"\n\t"
+					"4:\tli\t%1, %3\n\t"
+					"j\t3b\n\t"
+					".previous\n\t"
+					".section\t__ex_table,\"a\"\n\t"
+					STR(PTR)"\t1b, 4b\n\t"
+					STR(PTR)"\t2b, 4b\n\t"
+					".previous"
+					: "=&r" (value), "=r" (res)
+					: "r" (addr), "i" (-EFAULT));
+				if (res)
+					goto fault;
+				compute_return_epc(regs);
+				regs->regs[insn.dsp_format.rd] = value;
+				break;
+			default:
+				goto sigill;
+			}
+			break;
+		}
+		break;
+
 	case lh_op:
 		if (!access_ok(VERIFY_READ, addr, 2))
 			goto sigbus;

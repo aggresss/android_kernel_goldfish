@@ -241,6 +241,15 @@ struct p_format {	/* Performance counter format (R10000) */
 	unsigned int func : 6;
 };
 
+struct dsp_format {	/* DSP instruction format */
+	unsigned int opcode : 6;
+	unsigned int base : 5;
+	unsigned int index : 5;
+	unsigned int rd : 5;
+	unsigned int op : 5;
+	unsigned int func : 6;
+};
+
 struct f_format {	/* FPU register format */
 	unsigned int opcode : 6;
 	unsigned int : 1;
@@ -314,6 +323,15 @@ struct p_format {	/* Performance counter format (R10000) */
 	unsigned int opcode : 6;
 };
 
+struct dsp_format {	/* DSP instruction format */
+	unsigned int func : 6;
+	unsigned int op : 5;
+	unsigned int rd : 5;
+	unsigned int index : 5;
+	unsigned int base : 5;
+	unsigned int opcode : 6;
+};
+
 struct f_format {	/* FPU register format */
 	unsigned int func : 6;
 	unsigned int re : 5;
@@ -356,6 +374,7 @@ union mips_instruction {
 	struct f_format f_format;
 	struct ma_format ma_format;
 	struct b_format b_format;
+	struct dsp_format dsp_format;
 };
 
 /* HACHACHAHCAHC ...  */
