@@ -797,6 +797,10 @@ static void handle_signal(struct ksignal *ksig, struct pt_regs *regs)
 		regs->regs[0] = 0;		/* Don't deal with this again.	*/
 	}
 
+	/* adjust emulation stack if signal happens during emulation */
+	if (current_thread_info()->vdso_page)
+		vdso_epc_adjust(regs);
+
 	if (sig_uses_siginfo(&ksig->ka))
 		ret = abi->setup_rt_frame(vdso + abi->rt_signal_return_offset,
 					  ksig, regs, oldset);

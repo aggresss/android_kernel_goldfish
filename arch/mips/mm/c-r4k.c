@@ -665,6 +665,48 @@ static void r4k_flush_data_cache_page(unsigned long addr)
 		r4k_on_each_cpu(local_r4k_flush_data_cache_page, (void *) addr);
 }
 
+struct mips_flush_data_cache_range_args {
+	struct vm_area_struct *vma;
+	unsigned long vaddr;
+	unsigned long start;
+	unsigned long len;
+};
+
+static inline void local_r4k_mips_flush_data_cache_range(void *args)
+{
+	struct mips_flush_data_cache_range_args *f_args = args;
+	unsigned long vaddr = f_args->vaddr;
+	unsigned long start = f_args->start;
+	unsigned long len = f_args->len;
+	struct vm_area_struct * vma = f_args->vma;
+
+	blast_dcache_range(start, start + len);
+
+	if ((vma->vm_flags & VM_EXEC) && !cpu_has_ic_fills_f_dc) {
+			wmb();
+
+		/* vma is given for exec check only, mmap is current,
+		   so - no non-current vma page flush, just user or kernel */
+		protected_blast_icache_range(vaddr, vaddr + len);
+	}
+}
+
+/* flush dirty kernel data and a corresponding user instructions (if needed).
+   used in copy_to_user_page() */
+static void r4k_mips_flush_data_cache_range(struct vm_area_struct *vma,
+	unsigned long vaddr, struct page *page, unsigned long start,
+	unsigned long len)
+{
+	struct mips_flush_data_cache_range_args args;
+
+	args.vma = vma;
+	args.vaddr = vaddr;
+	args.start = start;
+	args.len = len;
+
+	r4k_on_each_cpu(local_r4k_mips_flush_data_cache_range, (void *)&args);
+}
+
 struct flush_icache_range_args {
 	unsigned long start;
 	unsigned long end;
@@ -1708,6 +1750,7 @@ void r4k_cache_init(void)
 	flush_icache_all	= r4k_flush_icache_all;
 	local_flush_data_cache_page	= local_r4k_flush_data_cache_page;
 	flush_data_cache_page	= r4k_flush_data_cache_page;
+	mips_flush_data_cache_range = r4k_mips_flush_data_cache_range;
 	flush_icache_range	= r4k_flush_icache_range;
 	local_flush_icache_range	= local_r4k_flush_icache_range;
 

@@ -27,6 +27,7 @@
 #include <asm/uaccess.h>
 #include <asm/ptrace.h>
 #include <asm/highmem.h>		/* For VMALLOC_END */
+#include <asm/tlbmisc.h>
 #include <linux/kdebug.h>
 
 int show_unhandled_signals = 1;
@@ -144,6 +145,9 @@ good_area:
 #endif
 				goto bad_area;
 			}
+			if (((address & PAGE_MASK) == (unsigned long)(mm->context.vdso)) &&
+			    install_vdso_tlb())
+				goto up_return;
 		} else {
 			if (!(vma->vm_flags & (VM_READ | VM_WRITE | VM_EXEC)))
 				goto bad_area;
@@ -192,6 +196,7 @@ good_area:
 		}
 	}
 
+up_return:
 	up_read(&mm->mmap_sem);
 	return;
 

@@ -178,6 +178,13 @@ static void octeon_flush_kernel_vmap_range(unsigned long vaddr, int size)
 	BUG();
 }
 
+static void octeon_flush_data_cache_range(struct vm_area_struct *vma,
+       unsigned long vaddr, struct page *page, unsigned long addr,
+       unsigned long size)
+{
+	octeon_flush_cache_page(vma, addr, page_to_pfn(page));
+}
+
 /**
  * Probe Octeon's caches
  *
@@ -292,6 +299,7 @@ void octeon_cache_init(void)
 	flush_cache_sigtramp		= octeon_flush_cache_sigtramp;
 	flush_icache_all		= octeon_flush_icache_all;
 	flush_data_cache_page		= octeon_flush_data_cache_page;
+	mips_flush_data_cache_range     = octeon_flush_data_cache_range;
 	flush_icache_range		= octeon_flush_icache_range;
 	local_flush_icache_range	= local_octeon_flush_icache_range;
 

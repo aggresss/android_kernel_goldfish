@@ -17,6 +17,7 @@
 #include <asm/dsp.h>
 #include <asm/cop2.h>
 #include <asm/msa.h>
+#include <asm/mmu_context.h>
 
 struct task_struct;
 
@@ -83,6 +84,18 @@ do {	if (cpu_has_rw_llb) {						\
 	}								\
 } while (0)
 
+static inline void flush_vdso_page(void)
+{
+	int cpu = raw_smp_processor_id();
+
+	if (current->mm && cpu_context(cpu, current->mm) &&
+	    (current->mm->context.vdso_page[cpu] != current_thread_info()->vdso_page) &&
+	    (current->mm->context.vdso_asid[cpu] == cpu_asid(cpu, current->mm))) {
+		local_flush_tlb_page(current->mm->mmap, (unsigned long)current->mm->context.vdso);
+		current->mm->context.vdso_asid[cpu] = 0;
+	}
+}
+
 #define switch_to(prev, next, last)					\
 do {									\
 	u32 __c0_stat;							\
@@ -120,6 +133,7 @@ do {									\
 		__restore_dsp(current);					\
 	if (cpu_has_userlocal)						\
 		write_c0_userlocal(current_thread_info()->tp_value);	\
+	flush_vdso_page();						\
 	__restore_watch();						\
 	disable_msa();							\
 } while (0)

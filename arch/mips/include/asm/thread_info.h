@@ -35,6 +35,8 @@ struct thread_info {
 						 * 0xffffffff for kernel-thread
 						 */
 	struct restart_block	restart_block;
+	unsigned long			vdso_offset;
+	struct page				*vdso_page;
 	struct pt_regs		*regs;
 	long			syscall;	/* syscall number */
 };
@@ -50,6 +52,7 @@ struct thread_info {
 	.cpu		= 0,			\
 	.preempt_count	= INIT_PREEMPT_COUNT,	\
 	.addr_limit	= KERNEL_DS,		\
+	.vdso_page	= NULL,				\
 	.restart_block	= {			\
 		.fn = do_no_restart_syscall,	\
 	},					\

@@ -245,6 +245,7 @@ static int jr_func(struct pt_regs *regs, u32 ir)
 {
 	int err;
 	unsigned long cepc, epc, nepc;
+	unsigned long r31;
 	u32 nir;
 
 	if (delay_slot(regs))
@@ -255,6 +256,7 @@ static int jr_func(struct pt_regs *regs, u32 ir)
 	/* Roll back to the reserved R2 JR instruction */
 	regs->cp0_epc -= 4;
 	epc = regs->cp0_epc;
+	r31 = regs->regs[31];
 	err = __compute_return_epc(regs);
 
 	if (err < 0)
@@ -281,7 +283,7 @@ static int jr_func(struct pt_regs *regs, u32 ir)
 		err = mipsr6_emul(regs, nir);
 		if (err > 0) {
 			regs->cp0_epc = nepc;
-			err = mips_dsemul(regs, nir, cepc);
+			err = mips_dsemul(regs, nir, cepc, epc, r31);
 			if (err == SIGILL)
 				err = SIGEMT;
 			MIPS_R2_STATS(dsemul);
@@ -1031,7 +1033,7 @@ repeat:
 			if (nir) {
 				err = mipsr6_emul(regs, nir);
 				if (err > 0) {
-					err = mips_dsemul(regs, nir, cpc);
+					err = mips_dsemul(regs, nir, cpc, epc, r31);
 					if (err == SIGILL)
 						err = SIGEMT;
 					MIPS_R2_STATS(dsemul);
@@ -1080,7 +1082,7 @@ repeat:
 			if (nir) {
 				err = mipsr6_emul(regs, nir);
 				if (err > 0) {
-					err = mips_dsemul(regs, nir, cpc);
+					err = mips_dsemul(regs, nir, cpc, epc, r31);
 					if (err == SIGILL)
 						err = SIGEMT;
 					MIPS_R2_STATS(dsemul);
@@ -1147,7 +1149,7 @@ repeat:
 		if (nir) {
 			err = mipsr6_emul(regs, nir);
 			if (err > 0) {
-				err = mips_dsemul(regs, nir, cpc);
+				err = mips_dsemul(regs, nir, cpc, epc, r31);
 				if (err == SIGILL)
 					err = SIGEMT;
 				MIPS_R2_STATS(dsemul);

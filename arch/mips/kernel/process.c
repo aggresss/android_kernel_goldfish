@@ -44,6 +44,7 @@
 #include <asm/inst.h>
 #include <asm/stacktrace.h>
 #include <asm/irq_regs.h>
+#include <asm/vdso.h>
 
 #ifdef CONFIG_HOTPLUG_CPU
 void arch_cpu_idle_dead(void)
@@ -61,6 +62,8 @@ void start_thread(struct pt_regs * regs, unsigned long pc, unsigned long sp)
 {
 	unsigned long status;
 
+	mips_thread_vdso(current_thread_info());
+
 	/* New thread loses kernel privileges. */
 	status = regs->cp0_status & ~(ST0_CU0|ST0_CU1|ST0_FR|KU_MASK);
 	status |= KU_USER;
@@ -77,6 +80,7 @@ void start_thread(struct pt_regs * regs, unsigned long pc, unsigned long sp)
 
 void exit_thread(void)
 {
+	arch_release_thread_info(current_thread_info());
 }
 
 void flush_thread(void)
@@ -119,6 +123,9 @@ int copy_thread(unsigned long clone_flags, unsigned long usp,
 	p->set_child_tid = p->clear_child_tid = NULL;
 
 	childksp = (unsigned long)task_stack_page(p) + THREAD_SIZE - 32;
+
+	ti->vdso_page = NULL;
+	mips_thread_vdso(ti);
 
 	/* set up new TSS. */
 	childregs = (struct pt_regs *) childksp - 1;
