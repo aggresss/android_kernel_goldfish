@@ -32,6 +32,8 @@
 #include <asm/mips-boards/generic.h>
 #include <asm/prom.h>
 
+#define HIGHMEM_OFFSET (0x20000000)
+
 void __init prom_init(void)
 {
 	char *cmdline = (char *)fw_arg0;
@@ -61,14 +63,29 @@ const char *get_system_type(void)
 void __init plat_mem_setup(void)
 {
 	/*
-	 * Load the builtin or appended devicetree.
-	 * This causes the chosen node to be
-	 * parsed resulting in our memory appearing
+	 * Load the built-in or appended device tree.
 	 */
 #ifdef CONFIG_MIPS_APPENDED_DTB
 	pr_info("Try setup using Appended DTB\n");
+	/*
+	 * This causes the "memory" node to be
+	 * parsed resulting in our memory appearing
+	 */
 	__dt_setup_arch(__appended_dtb);
 #else
+	unsigned int ramsize = fw_arg1;
+	unsigned int highmem_ramsize = fw_arg2;
+
+	/*
+	 * Since RAM size is adjustable property in QEMU
+	 * do not rely on the built-in device tree information
+	 * for setting up memory, do it according to information
+	 * passed through arguments fw_arg1 & fw_arg2.
+	 */
+	add_memory_region(0x0, ramsize, BOOT_MEM_RAM);
+	if (highmem_ramsize)
+		add_memory_region(HIGHMEM_OFFSET, highmem_ramsize, BOOT_MEM_RAM);
+
 	pr_info("Try setup using Built-in DTB\n");
 	__dt_setup_arch(__dtb_start);
 #endif
@@ -76,18 +93,7 @@ void __init plat_mem_setup(void)
 
 void __init device_tree_init(void)
 {
-	unsigned long base, size;
-
-	if (!initial_boot_params)
-		return;
-
-	base = virt_to_phys(initial_boot_params);
-	size = be32_to_cpu(fdt_totalsize(initial_boot_params));
-
-	/* Before we do anything, lets reserve the dt blob */
-	reserve_bootmem(base, size, BOOTMEM_DEFAULT);
-
-	unflatten_device_tree();
+	unflatten_and_copy_device_tree();
 }
 
 static struct of_device_id __initdata goldfish_ids[] = {
