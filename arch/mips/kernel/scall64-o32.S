@@ -69,16 +69,17 @@ NESTED(handle_sys, PT_SIZE, sp)
 	daddu	t1, t0, 32
 	bltz	t1, bad_stack
 
-1:	lw	a4, 16(t0)		# argument #5 from usp
-2:	lw	a5, 20(t0)		# argument #6 from usp
-3:	lw	a6, 24(t0)		# argument #7 from usp
-4:	lw	a7, 28(t0)		# argument #8 from usp (for indirect syscalls)
+load_a4: lw	a4, 16(t0)		# argument #5 from usp
+load_a5: lw	a5, 20(t0)		# argument #6 from usp
+load_a6: lw	a6, 24(t0)		# argument #7 from usp
+load_a7: lw	a7, 28(t0)		# argument #8 from usp
+loads_done:
 
 	.section __ex_table,"a"
-	PTR	1b, bad_stack
-	PTR	2b, bad_stack
-	PTR	3b, bad_stack
-	PTR	4b, bad_stack
+	PTR	load_a4, bad_stack_a4
+	PTR	load_a5, bad_stack_a5
+	PTR	load_a6, bad_stack_a6
+	PTR	load_a7, bad_stack_a7
 	.previous
 
 	li	t1, _TIF_WORK_SYSCALL_ENTRY
@@ -167,6 +168,22 @@ bad_stack:
 	sd	t0, PT_R7(sp)
 	j	o32_syscall_exit
 
+bad_stack_a4:
+	li	a4, 0
+	b	load_a5
+
+bad_stack_a5:
+	li	a5, 0
+	b	load_a6
+
+bad_stack_a6:
+	li	a6, 0
+	b	load_a7
+
+bad_stack_a7:
+	li	a7, 0
+	b	loads_done
+
 not_o32_scall:
 	/*
 	 * This is not an o32 compatibility syscall, pass it on
@@ -186,6 +203,7 @@ LEAF(sys32_syscall)
 	dsll	t1, t0, 3
 	beqz	v0, einval
 	ld	t2, sys32_call_table(t1)		# syscall routine
+	sd	a0, PT_R2(sp)		# call routine directly on restart
 
 	move	a0, a1			# shift argument registers
 	move	a1, a2

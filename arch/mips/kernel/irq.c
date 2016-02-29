@@ -25,11 +25,7 @@
 #include <linux/atomic.h>
 #include <asm/uaccess.h>
 
-#ifdef CONFIG_KGDB
-int kgdb_early_setup;
-#endif
-
-static unsigned long irq_map[NR_IRQS / BITS_PER_LONG];
+static DECLARE_BITMAP(irq_map, NR_IRQS);
 
 int allocate_irqno(void)
 {
@@ -93,23 +89,13 @@ void __init init_IRQ(void)
 {
 	int i;
 
-#ifdef CONFIG_KGDB
-	if (kgdb_early_setup)
-		return;
-#endif
-
 	for (i = 0; i < NR_IRQS; i++)
 		irq_set_noprobe(i);
 
 	arch_init_irq();
-
-#ifdef CONFIG_KGDB
-	if (!kgdb_early_setup)
-		kgdb_early_setup = 1;
-#endif
 }
 
-#ifdef DEBUG_STACKOVERFLOW
+#ifdef CONFIG_DEBUG_STACKOVERFLOW
 static inline void check_stack_overflow(void)
 {
 	unsigned long sp;

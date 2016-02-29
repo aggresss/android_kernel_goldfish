@@ -34,8 +34,9 @@ static void dump_tlb(int first, int last)
 		entrylo0 = read_c0_entrylo0();
 
 		/* Unused entries have a virtual address of KSEG0.  */
-		if ((entryhi & 0xfffff000) != 0x80000000
-		    && (entryhi & 0xfc0) == asid) {
+		if ((entryhi & PAGE_MASK) != KSEG0 &&
+		    (entrylo0 & R3K_ENTRYLO_G ||
+		     (entryhi & ASID_MASK) == asid)) {
 			/*
 			 * Only print entries in use
 			 */
@@ -46,10 +47,10 @@ static void dump_tlb(int first, int last)
 			       (entryhi & 0xfffff000),
 			       entryhi & 0xfc0,
 			       entrylo0 & PAGE_MASK,
-			       (entrylo0 & (1 << 11)) ? 1 : 0,
-			       (entrylo0 & (1 << 10)) ? 1 : 0,
-			       (entrylo0 & (1 << 9)) ? 1 : 0,
-			       (entrylo0 & (1 << 8)) ? 1 : 0);
+			       (entrylo0 & R3K_ENTRYLO_N) ? 1 : 0,
+			       (entrylo0 & R3K_ENTRYLO_D) ? 1 : 0,
+			       (entrylo0 & R3K_ENTRYLO_V) ? 1 : 0,
+			       (entrylo0 & R3K_ENTRYLO_G) ? 1 : 0);
 		}
 	}
 	printk("\n");

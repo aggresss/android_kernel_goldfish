@@ -29,7 +29,7 @@ LEAF(swsusp_arch_suspend)
 	j swsusp_save
 END(swsusp_arch_suspend)
 
-LEAF(swsusp_arch_resume)
+LEAF(restore_image)
 	PTR_L t0, restore_pblist
 0:
 	PTR_L t1, PBE_ADDRESS(t0)   /* source */
@@ -43,7 +43,6 @@ LEAF(swsusp_arch_resume)
 	bne t1, t3, 1b
 	PTR_L t0, PBE_NEXT(t0)
 	bnez t0, 0b
-	jal local_flush_tlb_all /* Avoid TLB mismatch after kernel resume */
 	PTR_LA t0, saved_regs
 	PTR_L ra, PT_R31(t0)
 	PTR_L sp, PT_R29(t0)
@@ -59,4 +58,4 @@ LEAF(swsusp_arch_resume)
 	PTR_L s7, PT_R23(t0)
 	PTR_LI v0, 0x0
 	jr ra
-END(swsusp_arch_resume)
+END(restore_image)

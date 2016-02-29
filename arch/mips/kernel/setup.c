@@ -82,7 +82,7 @@ static struct resource data_resource = { .name = "Kernel data", };
 
 static void *detect_magic __initdata = detect_memory_region;
 
-void __init add_memory_region(phys_t start, phys_t size, long type)
+void __init add_memory_region(phys_addr_t start, phys_addr_t size, long type)
 {
 	int x = boot_mem_map.nr_map;
 	int i;
@@ -127,10 +127,10 @@ void __init add_memory_region(phys_t start, phys_t size, long type)
 	boot_mem_map.nr_map++;
 }
 
-void __init detect_memory_region(phys_t start, phys_t sz_min, phys_t sz_max)
+void __init detect_memory_region(phys_addr_t start, phys_addr_t sz_min, phys_addr_t sz_max)
 {
 	void *dm = &detect_magic;
-	phys_t size;
+	phys_addr_t size;
 
 	for (size = sz_min; size < sz_max; size <<= 1) {
 		if (!memcmp(dm, dm + size, sizeof(detect_magic)))
@@ -336,6 +336,11 @@ static void __init bootmem_init(void)
 			min_low_pfn = start;
 		if (end <= reserved_end)
 			continue;
+#ifdef CONFIG_BLK_DEV_INITRD
+		/* mapstart should be after initrd_end */
+		if (initrd_end && end <= (unsigned long)PFN_UP(__pa(initrd_end)))
+			continue;
+#endif
 		if (start >= mapstart)
 			continue;
 		mapstart = max(reserved_end, start);
@@ -364,14 +369,6 @@ static void __init bootmem_init(void)
 #endif
 		max_low_pfn = PFN_DOWN(HIGHMEM_START);
 	}
-
-#ifdef CONFIG_BLK_DEV_INITRD
-	/*
-	 * mapstart should be after initrd_end
-	 */
-	if (initrd_end)
-		mapstart = max(mapstart, (unsigned long)PFN_UP(__pa(initrd_end)));
-#endif
 
 	/*
 	 * Initialize the boot-time allocator with low memory only.
@@ -493,7 +490,7 @@ static int usermem __initdata;
 
 static int __init early_parse_mem(char *p)
 {
-	phys_t start, size;
+	phys_addr_t start, size;
 
 	/*
 	 * If a user specifies memory size, we
@@ -545,9 +542,9 @@ static int __init early_parse_elfcorehdr(char *p)
 early_param("elfcorehdr", early_parse_elfcorehdr);
 #endif
 
-static void __init arch_mem_addpart(phys_t mem, phys_t end, int type)
+static void __init arch_mem_addpart(phys_addr_t mem, phys_addr_t end, int type)
 {
-	phys_t size;
+	phys_addr_t size;
 	int i;
 
 	size = end - mem;

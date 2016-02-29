@@ -37,6 +37,7 @@
 #include <asm/cacheflush.h> /* for run_uncached() */
 #include <asm/traps.h>
 #include <asm/dma-coherence.h>
+#include <asm/mips-cm.h>
 
 /*
  * Special Variant of smp_call_function for use by cache functions:
@@ -51,9 +52,16 @@ static inline void r4k_on_each_cpu(void (*func) (void *info), void *info)
 {
 	preempt_disable();
 
-#ifndef CONFIG_MIPS_MT_SMP
-	smp_call_function(func, info, 1);
-#endif
+	/*
+	 * The Coherent Manager propagates address-based cache ops to other
+	 * cores but not index-based ops. However, r4k_on_each_cpu is used
+	 * in both cases so there is no easy way to tell what kind of op is
+	 * executed to the other cores. The best we can probably do is
+	 * to restrict that call when a CM is not present because both
+	 * CM-based SMP protocols (CMP & CPS) restrict index-based cache ops.
+	 */
+	if (!mips_cm_present())
+		smp_call_function_many(&cpu_foreign_map, func, info, 1);
 	func(info);
 	preempt_enable();
 }
@@ -794,7 +802,7 @@ static void local_r4k_flush_cache_sigtramp(void * arg)
 		__asm__ __volatile__ (
 			".set push\n\t"
 			".set noat\n\t"
-			".set mips3\n\t"
+			".set "MIPS_ISA_LEVEL"\n\t"
 #ifdef CONFIG_32BIT
 			"la	$at,1f\n\t"
 #endif
@@ -888,37 +896,45 @@ static inline void rm7k_erratum31(void)
 	}
 }
 
-static inline void alias_74k_erratum(struct cpuinfo_mips *c)
+static inline int alias_74k_erratum(struct cpuinfo_mips *c)
 {
 	unsigned int imp = c->processor_id & PRID_IMP_MASK;
 	unsigned int rev = c->processor_id & PRID_REV_MASK;
+	int present = 0;
 
 	/*
 	 * Early versions of the 74K do not update the cache tags on a
 	 * vtag miss/ptag hit which can occur in the case of KSEG0/KUSEG
-	 * aliases. In this case it is better to treat the cache as always
-	 * having aliases.
+	 * aliases.  In this case it is better to treat the cache as always
+	 * having aliases.  Also disable the synonym tag update feature
+	 * where available.  In this case no opportunistic tag update will
+	 * happen where a load causes a virtual address miss but a physical
+	 * address hit during a D-cache look-up.
 	 */
 	switch (imp) {
 	case PRID_IMP_74K:
 		if (rev <= PRID_REV_ENCODE_332(2, 4, 0))
-			c->dcache.flags |= MIPS_CACHE_VTAG;
+			present = 1;
 		if (rev == PRID_REV_ENCODE_332(2, 4, 0))
 			write_c0_config6(read_c0_config6() | MIPS_CONF6_SYND);
 		break;
 	case PRID_IMP_1074K:
 		if (rev <= PRID_REV_ENCODE_332(1, 1, 0)) {
-			c->dcache.flags |= MIPS_CACHE_VTAG;
+			present = 1;
 			write_c0_config6(read_c0_config6() | MIPS_CONF6_SYND);
 		}
 		break;
 	default:
 		BUG();
 	}
+
+	return present;
 }
 
 static char *way_string[] = { NULL, "direct mapped", "2-way",
-	"3-way", "4-way", "5-way", "6-way", "7-way", "8-way"
+	"3-way", "4-way", "5-way", "6-way", "7-way", "8-way",
+	"9-way", "10-way", "11-way", "12-way",
+	"13-way", "14-way", "15-way", "16-way",
 };
 
 static void probe_pcache(void)
@@ -926,6 +942,7 @@ static void probe_pcache(void)
 	struct cpuinfo_mips *c = &current_cpu_data;
 	unsigned int config = read_c0_config();
 	unsigned int prid = read_c0_prid();
+	int has_74k_erratum = 0;
 	unsigned long config1;
 	unsigned int lsize;
 
@@ -1232,7 +1249,7 @@ static void probe_pcache(void)
 
 	case CPU_74K:
 	case CPU_1074K:
-		alias_74k_erratum(c);
+		has_74k_erratum = alias_74k_erratum(c);
 		/* Fall through. */
 	case CPU_M14KC:
 	case CPU_M14KEC:
@@ -1243,10 +1260,11 @@ static void probe_pcache(void)
 	case CPU_P5600:
 	case CPU_PROAPTIV:
 	case CPU_M5150:
+	case CPU_QEMU_GENERIC:
 		if (!(read_c0_config7() & MIPS_CONF7_IAR) &&
 		    (c->icache.waysize > PAGE_SIZE))
 			c->icache.flags |= MIPS_CACHE_ALIASES;
-		if (read_c0_config7() & MIPS_CONF7_AR) {
+		if (!has_74k_erratum && (read_c0_config7() & MIPS_CONF7_AR)) {
 			/*
 			 * Effectively physically indexed dcache,
 			 * thus no virtual aliases.
@@ -1255,7 +1273,7 @@ static void probe_pcache(void)
 			break;
 		}
 	default:
-		if (c->dcache.waysize > PAGE_SIZE)
+		if (has_74k_erratum || c->dcache.waysize > PAGE_SIZE)
 			c->dcache.flags |= MIPS_CACHE_ALIASES;
 	}
 
@@ -1349,7 +1367,7 @@ static int probe_scache(void)
 	scache_size = addr;
 	c->scache.linesz = 16 << ((config & R4K_CONF_SB) >> 22);
 	c->scache.ways = 1;
-	c->dcache.waybit = 0;		/* does not matter */
+	c->scache.waybit = 0;		/* does not matter */
 
 	return 1;
 }
@@ -1460,7 +1478,8 @@ static void setup_scache(void)
 
 	default:
 		if (c->isa_level & (MIPS_CPU_ISA_M32R1 | MIPS_CPU_ISA_M32R2 |
-				    MIPS_CPU_ISA_M64R1 | MIPS_CPU_ISA_M64R2)) {
+				    MIPS_CPU_ISA_M32R6 | MIPS_CPU_ISA_M64R1 |
+				    MIPS_CPU_ISA_M64R2 | MIPS_CPU_ISA_M64R6)) {
 #ifdef CONFIG_MIPS_CPU_SCACHE
 			if (mips_sc_init ()) {
 				scache_size = c->scache.ways * c->scache.sets * c->scache.linesz;

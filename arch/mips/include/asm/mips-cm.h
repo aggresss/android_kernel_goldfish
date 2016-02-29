@@ -11,6 +11,7 @@
 #ifndef __MIPS_ASM_MIPS_CM_H__
 #define __MIPS_ASM_MIPS_CM_H__
 
+#include <linux/errno.h>
 #include <linux/io.h>
 #include <linux/types.h>
 
@@ -30,7 +31,7 @@ extern void __iomem *mips_cm_l2sync_base;
  * different way by defining a function with the same prototype except for the
  * name mips_cm_phys_base (without underscores).
  */
-extern phys_t __mips_cm_phys_base(void);
+extern phys_addr_t __mips_cm_phys_base(void);
 
 /**
  * mips_cm_probe - probe for a Coherence Manager
@@ -89,9 +90,9 @@ static inline bool mips_cm_has_l2sync(void)
 
 /* Macros to ease the creation of register access functions */
 #define BUILD_CM_R_(name, off)					\
-static inline u32 *addr_gcr_##name(void)			\
+static inline u32 __iomem *addr_gcr_##name(void)		\
 {								\
-	return (u32 *)(mips_cm_base + (off));			\
+	return (u32 __iomem *)(mips_cm_base + (off));		\
 }								\
 								\
 static inline u32 read_gcr_##name(void)				\
@@ -215,6 +216,10 @@ BUILD_CM_Cx_R_(tcid_8_priority,	0x80)
 #define CM_GCR_CPC_BASE_CPCBASE_MSK		(_ULCAST_(0x7fff) << 17)
 #define CM_GCR_CPC_BASE_CPCEN_SHF		0
 #define CM_GCR_CPC_BASE_CPCEN_MSK		(_ULCAST_(0x1) << 0)
+
+/* GCR_GIC_STATUS register fields */
+#define CM_GCR_GIC_STATUS_GICEX_SHF		0
+#define CM_GCR_GIC_STATUS_GICEX_MSK		(_ULCAST_(0x1) << 0)
 
 /* GCR_REGn_BASE register fields */
 #define CM_GCR_REGn_BASE_BASEADDR_SHF		16
