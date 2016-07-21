@@ -10,6 +10,7 @@ obj-$(CONFIG_GOLDFISH)	+= goldfish-platform.o
 obj-$(CONFIG_GOLDFISH)	+= goldfish-interrupt.o
 obj-$(CONFIG_GOLDFISH)	+= goldfish-time.o
 obj-$(CONFIG_GOLDFISH)	+= pm.o
+obj-$(CONFIG_GOLDFISH)	+= goldfish-reset.o
 
 obj-$(CONFIG_MIPS_GOLDFISH_SWITCH)	+= switch.o
 
