@@ -34,7 +34,6 @@ struct thread_info {
 						 * 0x7fffffff for user-thead
 						 * 0xffffffff for kernel-thread
 						 */
-	struct restart_block	restart_block;
 	unsigned long			vdso_offset;
 	struct page				*vdso_page;
 	struct pt_regs		*regs;
@@ -53,9 +52,6 @@ struct thread_info {
 	.preempt_count	= INIT_PREEMPT_COUNT,	\
 	.addr_limit	= KERNEL_DS,		\
 	.vdso_page	= NULL,				\
-	.restart_block	= {			\
-		.fn = do_no_restart_syscall,	\
-	},					\
 }
 
 #define init_thread_info	(init_thread_union.thread_info)

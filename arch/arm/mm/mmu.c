@@ -291,13 +291,13 @@ static struct mem_type mem_types[] = {
 		.prot_pte  = L_PTE_PRESENT | L_PTE_YOUNG | L_PTE_DIRTY |
 				L_PTE_RDONLY,
 		.prot_l1   = PMD_TYPE_TABLE,
-		.domain    = DOMAIN_USER,
+		.domain    = DOMAIN_VECTORS,
 	},
 	[MT_HIGH_VECTORS] = {
 		.prot_pte  = L_PTE_PRESENT | L_PTE_YOUNG | L_PTE_DIRTY |
 				L_PTE_USER | L_PTE_RDONLY,
 		.prot_l1   = PMD_TYPE_TABLE,
-		.domain    = DOMAIN_USER,
+		.domain    = DOMAIN_VECTORS,
 	},
 	[MT_MEMORY_RWX] = {
 		.prot_pte  = L_PTE_PRESENT | L_PTE_YOUNG | L_PTE_DIRTY,
@@ -468,26 +468,6 @@ static void __init build_mem_type_table(void)
 		for (i = 0; i < ARRAY_SIZE(mem_types); i++)
 			mem_types[i].prot_sect &= ~PMD_SECT_S;
 
-#ifndef CONFIG_ARM_LPAE
-        /*
-         * We don't use domains on ARMv6 (since this causes problems with
-         * v6/v7 kernels), so we must use a separate memory type for user
-         * r/o, kernel r/w to map the vectors page.
-         */
-        if (cpu_arch == CPU_ARCH_ARMv6)
-                vecs_pgprot |= L_PTE_MT_VECTORS;
-
-
-       /*
-        * Check is it with support for the PXN bit
-        * in the Short-descriptor translation table format descriptors.
-        */
-       if (cpu_arch == CPU_ARCH_ARMv7 &&
-               (read_cpuid_ext(CPUID_EXT_MMFR0) & 0xF) >= 4) {
-               user_pmd_table |= PMD_PXNTABLE;
-       }
-#endif
-
 	/*
 	 * ARMv5 and lower, bit 4 must be set for page tables (was: cache
 	 * "update-able on write" bit on ARM610).  However, Xscale and
@@ -584,6 +564,25 @@ static void __init build_mem_type_table(void)
 		vecs_pgprot |= L_PTE_MT_VECTORS;
 #endif
 
+#ifndef CONFIG_ARM_LPAE
+	/*
+	 * We don't use domains on ARMv6 (since this causes problems with
+	 * v6/v7 kernels), so we must use a separate memory type for user
+	 * r/o, kernel r/w to map the vectors page.
+	 */
+	if (cpu_arch == CPU_ARCH_ARMv6)
+		vecs_pgprot |= L_PTE_MT_VECTORS;
+
+	/*
+	 * Check is it with support for the PXN bit
+	 * in the Short-descriptor translation table format descriptors.
+	 */
+	if (cpu_arch == CPU_ARCH_ARMv7 &&
+		(read_cpuid_ext(CPUID_EXT_MMFR0) & 0xF) >= 4) {
+		user_pmd_table |= PMD_PXNTABLE;
+	}
+#endif
+
 	/*
 	 * ARMv6 and above have extended page tables.
 	 */
@@ -652,10 +651,10 @@ static void __init build_mem_type_table(void)
 	kern_pgprot |= PTE_EXT_AF;
 	vecs_pgprot |= PTE_EXT_AF;
 
-       /*
-        * Set PXN for user mappings
-        */
-       user_pgprot |= PTE_EXT_PXN;
+	/*
+	 * Set PXN for user mappings
+	 */
+	user_pgprot |= PTE_EXT_PXN;
 #endif
 
 	for (i = 0; i < 16; i++) {
