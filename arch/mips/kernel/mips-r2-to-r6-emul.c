@@ -904,7 +904,7 @@ static inline int mipsr2_find_op_func(struct pt_regs *regs, u32 inst,
  */
 int mipsr2_decoder(struct pt_regs *regs, u32 inst, unsigned long *fcr31)
 {
-	int err = 0;
+	int err;
 	unsigned long vaddr;
 	u32 nir;
 	unsigned long cpc, epc, nepc, r31, res, rs, rt;
@@ -915,11 +915,11 @@ int mipsr2_decoder(struct pt_regs *regs, u32 inst, unsigned long *fcr31)
 repeat:
 	r31 = regs->regs[31];
 	epc = regs->cp0_epc;
-	err = compute_return_epc(regs);
-	if (err < 0) {
+	if (compute_return_epc(regs) < 0) {
 		BUG();
 		return SIGEMT;
 	}
+	err = 0;
 	pr_debug("Emulating the 0x%08x R2 instruction @ 0x%08lx (pass=%d))\n",
 		 inst, epc, pass);
 
@@ -1097,10 +1097,15 @@ repeat:
 		}
 		break;
 
-	case beql_op:
-	case bnel_op:
 	case blezl_op:
 	case bgtzl_op:
+		/* return MIPS R6 instruction to CPU execution */
+		if (MIPSInst_RT(inst)) {
+			err = SIGILL;
+			break;
+		}
+	case beql_op:
+	case bnel_op:
 		if (delay_slot(regs)) {
 			err = SIGILL;
 			break;
