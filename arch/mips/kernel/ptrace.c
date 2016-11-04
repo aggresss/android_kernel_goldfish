@@ -565,6 +565,46 @@ const struct user_regset_view *task_user_regset_view(struct task_struct *task)
 #endif
 }
 
+int mips_vdso_ptrace_get(struct task_struct *child, unsigned long addr,
+			 unsigned long data, int size)
+{
+	unsigned long uLong;
+	u32 uInt;
+	int len;
+	int pos;
+	int ret;
+	void * space;
+
+	if (size == sizeof(unsigned long))
+		space = (void *)&uLong;
+	else
+		space = (void *)&uInt;
+
+	len = (unsigned long)child->mm->context.vdso - addr;
+	if (len > 0) {
+		ret = access_process_vm(child, addr, &space, len, 0);
+		if (ret != len)
+			return -EIO;
+		pos = len;
+		len = size - len;
+	} else {
+		pos = 0;
+		len = size;
+	}
+
+	memcpy(space + pos,
+	       (void *)addr - child->mm->context.vdso +
+		current->mm->context.vdso + pos,
+	       len);
+
+	if (size == sizeof(unsigned long)) {
+		ret = put_user(uLong, (unsigned long __user *) data);
+	} else {
+		ret = put_user(uInt, (u32 __user *) data);
+	}
+	return ret;
+}
+
 long arch_ptrace(struct task_struct *child, long request,
 		 unsigned long addr, unsigned long data)
 {
@@ -577,6 +617,19 @@ long arch_ptrace(struct task_struct *child, long request,
 	/* when I and D space are separate, these will need to be fixed. */
 	case PTRACE_PEEKTEXT: /* read word at location addr. */
 	case PTRACE_PEEKDATA:
+		if (task_thread_info(child)->vdso_page) {
+			if (((child->mm->context.vdso - sizeof(unsigned long)) <
+			     addrp) &&
+			    ((child->mm->context.vdso + PAGE_SIZE) > addrp)) {
+				if ((child->mm->context.vdso + PAGE_SIZE -
+				     addrp) < sizeof(unsigned long)) {
+					ret = -EIO;
+					break;
+				}
+				ret = mips_vdso_ptrace_get(child, addr, data, sizeof(unsigned long));
+				break;
+			}
+		}
 		ret = generic_ptrace_peekdata(child, addr, data);
 		break;
 
@@ -674,6 +727,14 @@ long arch_ptrace(struct task_struct *child, long request,
 	/* when I and D space are separate, this will have to be fixed. */
 	case PTRACE_POKETEXT: /* write the word at location addr. */
 	case PTRACE_POKEDATA:
+		if (task_thread_info(child)->vdso_page) {
+			if (((child->mm->context.vdso - sizeof(unsigned long)) <
+			     addrp) &&
+			    ((child->mm->context.vdso + PAGE_SIZE) > addrp)) {
+				ret = -EIO;
+				break;
+			}
+		}
 		ret = generic_ptrace_pokedata(child, addr, data);
 		break;
 
